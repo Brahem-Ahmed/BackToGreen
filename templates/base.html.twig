@@ -1,85 +1,519 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="" />
-        <meta name="author" content="" />
-        <title>Small Business - Start Bootstrap Template</title>
-        <!-- Favicon-->
-        <link rel="icon" type="image/x-icon" href="{{ asset('assets/favicon.ico') }}" />
-        <!-- Core theme CSS (includes Bootstrap)-->
-        <link href="{{ asset('css/styles.css') }}" rel="stylesheet" />
-    </head>
-    <body>
-        <!-- Responsive navbar-->
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <div class="container px-5">
-                <a class="navbar-brand" href="#!">Start Bootstrap</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="#!">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#!">About</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#!">Contact</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#!">Services</a></li>
-                    </ul>
-                </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BacktoGreen - Campaign Event Organizer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bs-primary: #198754;
+            --bs-primary-rgb: 25, 135, 84;
+            --bs-success: #0d6efd;
+        }
+        
+        .bg-primary {
+            background-color: var(--bs-primary) !important;
+        }
+        
+        .btn-primary {
+            background-color: var(--bs-primary);
+            border-color: var(--bs-primary);
+        }
+        
+        .btn-primary:hover {
+            background-color: #157347;
+            border-color: #146c43;
+        }
+        
+        .text-primary {
+            color: var(--bs-primary) !important;
+        }
+        
+        .border-primary {
+            border-color: var(--bs-primary) !important;
+        }
+        
+        .card-title {
+            color: var(--bs-primary);
+        }
+        
+        .navbar-brand {
+            font-weight: 600;
+        }
+        
+        .hero-section {
+            background: linear-gradient(rgba(25, 135, 84, 0.8), rgba(25, 135, 84, 0.9)), url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 6rem 0;
+            border-radius: 0 0 20px 20px;
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(25, 135, 84, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            color: var(--bs-primary);
+            font-size: 1.5rem;
+        }
+        
+        .campaign-card {
+            transition: transform 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .campaign-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .campaign-card .card-footer {
+            background-color: white;
+            border-top: 1px solid rgba(25, 135, 84, 0.1);
+        }
+        
+        .stats-section {
+            background-color: #f8f9fa;
+            padding: 4rem 0;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--bs-primary);
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            color: #6c757d;
+        }
+        
+        .cta-section {
+            background-color: var(--bs-primary);
+            color: white;
+            padding: 5rem 0;
+        }
+        
+        footer a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+        }
+        
+        footer a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+        
+        .impact-counter {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--bs-primary);
+        }
+        
+        .campaign-progress {
+            height: 10px;
+            border-radius: 5px;
+        }
+        
+        .event-calendar {
+            border-left: 4px solid var(--bs-primary);
+            padding-left: 15px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Responsive navbar-->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container px-5">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-leaf me-2"></i>BacktoGreen
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="#">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#campaigns">Campaigns</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#events">Events</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#impact">Our Impact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+                </ul>
             </div>
-        </nav>
-        <!-- Page Content-->
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <div class="hero-section">
         <div class="container px-4 px-lg-5">
-            <!-- Heading Row-->
-            <div class="row gx-4 gx-lg-5 align-items-center my-5">
-                <div class="col-lg-7"><img class="img-fluid rounded mb-4 mb-lg-0" src="https://dummyimage.com/900x400/dee2e6/6c757d.jpg" alt="..." /></div>
-                <div class="col-lg-5">
-                    <h1 class="font-weight-light">Business Name or Tagline</h1>
-                    <p>This is a template that is great for small businesses. It doesn't have too much fancy flare to it, but it makes a great use of the standard Bootstrap core components. Feel free to use this template for any project you want!</p>
-                    <a class="btn btn-primary" href="#!">Call to Action!</a>
+            <div class="row gx-4 gx-lg-5 align-items-center">
+                <div class="col-lg-8">
+                    <h1 class="font-weight-light text-white">Organize. Mobilize. Make a Difference.</h1>
+                    <p class="text-white-75 mb-4">BacktoGreen helps you create, manage, and promote environmental campaigns and events. Join thousands of activists making our planet greener, one campaign at a time.</p>
+                    <a class="btn btn-light btn-lg" href="#campaigns">Start a Campaign</a>
+                    <a class="btn btn-outline-light btn-lg ms-2" href="#events">Find Events</a>
                 </div>
             </div>
-            <!-- Call to Action-->
-            <div class="card text-white bg-secondary my-5 py-4 text-center">
-                <div class="card-body"><p class="text-white m-0">This call to action card is a great place to showcase some important information or display a clever tagline!</p></div>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats-section">
+        <div class="container px-4 px-lg-5">
+            <div class="row gx-4 gx-lg-5 text-center">
+                <div class="col-md-3 mb-5">
+                    <div class="stat-number" id="campaignCounter">0</div>
+                    <div class="stat-label">Active Campaigns</div>
+                </div>
+                <div class="col-md-3 mb-5">
+                    <div class="stat-number" id="volunteerCounter">0</div>
+                    <div class="stat-label">Volunteers</div>
+                </div>
+                <div class="col-md-3 mb-5">
+                    <div class="stat-number" id="eventCounter">0</div>
+                    <div class="stat-label">Events Organized</div>
+                </div>
+                <div class="col-md-3 mb-5">
+                    <div class="stat-number" id="countryCounter">0</div>
+                    <div class="stat-label">Countries</div>
+                </div>
             </div>
-            <!-- Content Row-->
-            <div class="row gx-4 gx-lg-5">
-                <div class="col-md-4 mb-5">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h2 class="card-title">Card One</h2>
-                            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rem magni quas ex numquam, maxime minus quam molestias corporis quod, ea minima accusamus.</p>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="row gx-4 gx-lg-5">
+            <div class="col-12 text-center mb-5">
+                <h2>How BacktoGreen Works</h2>
+                <p class="lead">Our platform makes it easy to create and manage environmental initiatives</p>
+            </div>
+            <div class="col-lg-4 mb-5">
+                <div class="feature-icon mx-auto">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <h3 class="text-center">Event Management</h3>
+                <p class="text-center">Easily create and manage environmental events, from tree planting to beach cleanups. Our tools help you coordinate volunteers, track attendance, and measure impact.</p>
+            </div>
+            <div class="col-lg-4 mb-5">
+                <div class="feature-icon mx-auto">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="text-center">Community Building</h3>
+                <p class="text-center">Connect with like-minded individuals and organizations. Grow your movement by engaging volunteers, sharing resources, and collaborating on initiatives.</p>
+            </div>
+            <div class="col-lg-4 mb-5">
+                <div class="feature-icon mx-auto">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="text-center">Impact Tracking</h3>
+                <p class="text-center">Measure and showcase your environmental impact with our tracking tools. Document carbon reductions, waste diverted, trees planted, and more.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Call to Action -->
+    <div class="card text-white bg-secondary my-5 py-4 text-center">
+        <div class="card-body">
+            <p class="text-white m-0">"The Earth is what we all have in common." — Wendell Berry. Join our community today and be part of the solution!</p>
+        </div>
+    </div>
+    
+    <!-- Featured Campaigns -->
+    <div class="container px-4 px-lg-5" id="campaigns">
+        <div class="row gx-4 gx-lg-5">
+            <div class="col-12">
+                <h2 class="my-5">Featured Campaigns</h2>
+            </div>
+            <div class="col-md-4 mb-5">
+                <div class="card h-100 campaign-card">
+                    <img class="card-img-top" src="https://images.unsplash.com/photo-1570804439979-0a85e6ddac9c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Urban Reforestation" />
+                    <div class="card-body">
+                        <h3 class="card-title">Urban Reforestation</h3>
+                        <p class="card-text">Join our initiative to plant 10,000 trees in urban areas. Help combat air pollution and create green spaces in cities worldwide.</p>
+                        <div class="mb-3">
+                            <span class="badge bg-primary">Ongoing</span>
+                            <span class="badge bg-success ms-1">1274 Participants</span>
                         </div>
-                        <div class="card-footer"><a class="btn btn-primary btn-sm" href="#!">More Info</a></div>
+                        <div class="progress campaign-progress mb-2">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <small class="text-muted">65% of goal reached</small>
+                    </div>
+                    <div class="card-footer">
+                        <a class="btn btn-primary btn-sm" href="#">Join Campaign</a>
+                        <a class="btn btn-outline-primary btn-sm ms-1" href="#">Learn More</a>
                     </div>
                 </div>
-                <div class="col-md-4 mb-5">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h2 class="card-title">Card Two</h2>
-                            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quod tenetur ex natus at dolorem enim! Nesciunt pariatur voluptatem sunt quam eaque, vel, non in id dolore voluptates quos eligendi labore.</p>
+            </div>
+            <div class="col-md-4 mb-5">
+                <div class="card h-100 campaign-card">
+                    <img class="card-img-top" src="https://images.unsplash.com/photo-1596464716127-f2a82984de30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Plastic-Free Oceans" />
+                    <div class="card-body">
+                        <h3 class="card-title">Plastic-Free Oceans</h3>
+                        <p class="card-text">Our global campaign to remove plastic waste from oceans and coastlines. Participate in cleanups or support our advocacy work.</p>
+                        <div class="mb-3">
+                            <span class="badge bg-primary">Ongoing</span>
+                            <span class="badge bg-success ms-1">3562 Participants</span>
                         </div>
-                        <div class="card-footer"><a class="btn btn-primary btn-sm" href="#!">More Info</a></div>
+                        <div class="progress campaign-progress mb-2">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 82%" aria-valuenow="82" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <small class="text-muted">82% of goal reached</small>
+                    </div>
+                    <div class="card-footer">
+                        <a class="btn btn-primary btn-sm" href="#">Join Campaign</a>
+                        <a class="btn btn-outline-primary btn-sm ms-1" href="#">Learn More</a>
                     </div>
                 </div>
-                <div class="col-md-4 mb-5">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h2 class="card-title">Card Three</h2>
-                            <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rem magni quas ex numquam, maxime minus quam molestias corporis quod, ea minima accusamus.</p>
+            </div>
+            <div class="col-md-4 mb-5">
+                <div class="card h-100 campaign-card">
+                    <img class="card-img-top" src="https://images.unsplash.com/photo-1569163139394-de44cb2c8cb7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Community Gardens" />
+                    <div class="card-body">
+                        <h3 class="card-title">Community Gardens</h3>
+                        <p class="card-text">Transform unused urban spaces into productive community gardens. Promote local food production and neighborhood connections.</p>
+                        <div class="mb-3">
+                            <span class="badge bg-primary">Ongoing</span>
+                            <span class="badge bg-success ms-1">893 Participants</span>
                         </div>
-                        <div class="card-footer"><a class="btn btn-primary btn-sm" href="#!">More Info</a></div>
+                        <div class="progress campaign-progress mb-2">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 45%" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <small class="text-muted">45% of goal reached</small>
+                    </div>
+                    <div class="card-footer">
+                        <a class="btn btn-primary btn-sm" href="#">Join Campaign</a>
+                        <a class="btn btn-outline-primary btn-sm ms-1" href="#">Learn More</a>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- Footer-->
-        <footer class="py-5 bg-dark">
-            <div class="container px-4 px-lg-5"><p class="m-0 text-center text-white">Copyright &copy; Your Website 2023</p></div>
-        </footer>
-        <!-- Bootstrap core JS-->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- Core theme JS-->
-        <script src="js/scripts.js"></script>
-    </body>
+    </div>
+    
+    <!-- Impact Section -->
+    <div class="container px-4 px-lg-5 my-5" id="impact">
+        <div class="row gx-4 gx-lg-5 align-items-center">
+            <div class="col-lg-6">
+                <h2>Our Environmental Impact</h2>
+                <p class="lead">Together with our community, we've achieved remarkable results in protecting our planet.</p>
+                <div class="row mt-5">
+                    <div class="col-6 mb-4">
+                        <div class="impact-counter" id="treesCounter">0</div>
+                        <div class="stat-label">Trees Planted</div>
+                    </div>
+                    <div class="col-6 mb-4">
+                        <div class="impact-counter" id="plasticCounter">0</div>
+                        <div class="stat-label">Plastic Waste Collected (kg)</div>
+                    </div>
+                    <div class="col-6 mb-4">
+                        <div class="impact-counter" id="carbonCounter">0</div>
+                        <div class="stat-label">Carbon Offset (tons)</div>
+                    </div>
+                    <div class="col-6 mb-4">
+                        <div class="impact-counter" id="waterCounter">0</div>
+                        <div class="stat-label">Water Bodies Cleaned</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <img src="https://images.unsplash.com/photo-1569163139394-de44cb2c8cb7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" class="img-fluid rounded" alt="Environmental Impact">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Events Section -->
+    <div class="container px-4 px-lg-5 my-5" id="events">
+        <div class="row gx-4 gx-lg-5">
+            <div class="col-12">
+                <h2 class="my-5">Upcoming Events</h2>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card event-calendar">
+                    <div class="card-body">
+                        <h5 class="card-title">Beach Cleanup Day</h5>
+                        <p class="card-text"><i class="fas fa-calendar me-2"></i>October 15, 2023 | 9:00 AM</p>
+                        <p class="card-text"><i class="fas fa-map-marker-alt me-2"></i>Santa Monica Beach, CA</p>
+                        <p class="card-text">Join us for a community beach cleanup. All equipment will be provided.</p>
+                        <a href="#" class="btn btn-primary btn-sm">Register Now</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card event-calendar">
+                    <div class="card-body">
+                        <h5 class="card-title">Urban Tree Planting</h5>
+                        <p class="card-text"><i class="fas fa-calendar me-2"></i>October 22, 2023 | 10:00 AM</p>
+                        <p class="card-text"><i class="fas fa-map-marker-alt me-2"></i>Central Park, New York</p>
+                        <p class="card-text">Help us plant 500 trees in Central Park. No experience necessary.</p>
+                        <a href="#" class="btn btn-primary btn-sm">Register Now</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card event-calendar">
+                    <div class="card-body">
+                        <h5 class="card-title">Environmental Education Workshop</h5>
+                        <p class="card-text"><i class="fas fa-calendar me-2"></i>November 5, 2023 | 2:00 PM</p>
+                        <p class="card-text"><i class="fas fa-map-marker-alt me-2"></i>Online Event</p>
+                        <p class="card-text">Learn about sustainable practices and how to start your own campaign.</p>
+                        <a href="#" class="btn btn-primary btn-sm">Register Now</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card event-calendar">
+                    <div class="card-body">
+                        <h5 class="card-title">Community Garden Opening</h5>
+                        <p class="card-text"><i class="fas fa-calendar me-2"></i>November 12, 2023 | 11:00 AM</p>
+                        <p class="card-text"><i class="fas fa-map-marker-alt me-2"></i>123 Green Street, Chicago</p>
+                        <p class="card-text">Celebrate the opening of our newest community garden project.</p>
+                        <a href="#" class="btn btn-primary btn-sm">Register Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- CTA Section -->
+    <div class="cta-section">
+        <div class="container px-4 px-lg-5 text-center">
+            <h2 class="mb-4">Ready to make a difference?</h2>
+            <p class="mb-4">Join thousands of environmental activists and start creating change today.</p>
+            <a class="btn btn-light btn-lg" href="#">Get Started</a>
+            <a class="btn btn-outline-light btn-lg ms-2" href="#">Learn More</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-5 bg-dark">
+        <div class="container px-4 px-lg-5">
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <h5 class="text-white">BacktoGreen</h5>
+                    <p class="text-muted">Empowering environmental activism through technology and community.</p>
+                    <div class="mt-3">
+                        <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="text-white">Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#campaigns">Campaigns</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#about">About</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="text-white">Resources</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Toolkit</a></li>
+                        <li><a href="#">Partners</a></li>
+                        <li><a href="#">Support</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="text-white">Legal</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Use</a></li>
+                        <li><a href="#">Cookie Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <p class="m-0 text-center text-white">Copyright &copy; BacktoGreen 2023</p>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        // Counter animation for statistics
+        function animateCounter(elementId, finalValue, duration) {
+            let element = document.getElementById(elementId);
+            let startValue = 0;
+            let increment = finalValue / (duration / 10);
+            let currentValue = startValue;
+            
+            let timer = setInterval(function() {
+                currentValue += increment;
+                if (currentValue >= finalValue) {
+                    clearInterval(timer);
+                    currentValue = finalValue;
+                }
+                element.textContent = Math.floor(currentValue).toLocaleString();
+            }, 10);
+        }
+        
+        // Initialize counters when page loads
+        window.addEventListener('DOMContentLoaded', (event) => {
+            // Stats counters
+            animateCounter('campaignCounter', 250, 1000);
+            animateCounter('volunteerCounter', 15000, 1000);
+            animateCounter('eventCounter', 500, 1000);
+            animateCounter('countryCounter', 42, 1000);
+            
+            // Impact counters
+            animateCounter('treesCounter', 12500, 1500);
+            animateCounter('plasticCounter', 8500, 1500);
+            animateCounter('carbonCounter', 3200, 1500);
+            animateCounter('waterCounter', 150, 1500);
+            
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 70,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            // Add animation to campaign cards on scroll
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+            
+            document.querySelectorAll('.campaign-card').forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                observer.observe(card);
+            });
+        });
+    </script>
+</body>
 </html>
