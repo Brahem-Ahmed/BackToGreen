@@ -73,7 +73,6 @@ Transformer l'engagement environnemental en une expérience collaborative, motiv
 
 ### Backend
 - **Symfony 6/7** (PHP 8.2+)
-- **API RESTful**
 - **MySQL**
 
 ### Frontend
