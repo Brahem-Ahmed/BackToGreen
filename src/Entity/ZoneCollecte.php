@@ -2,13 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
+use App\Repository\ZoneCollecteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: UserRepository::class)]
-class User
+#[ORM\Entity(repositoryClass: ZoneCollecteRepository::class)]
+class ZoneCollecte
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -19,27 +19,27 @@ class User
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $prenom = null;
+    private ?string $adresse = null;
+
+    #[ORM\Column]
+    private ?float $latitude = null;
+
+    #[ORM\Column]
+    private ?float $longitude = null;
+
+    #[ORM\Column]
+    private ?int $capacite = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $email = null;
+    private ?string $horaires = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $motDePasse = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $telephone = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $addresse = null;
-
-    #[ORM\Column(enumType: RoleUser::class)]
-    private ?RoleUser $role = null;
+    #[ORM\Column(enumType: TypeDechet::class)]
+    private ?TypeDechet $typeDechet = null;
 
     /**
      * @var Collection<int, CollecteDechet>
      */
-    #[ORM\OneToMany(targetEntity: CollecteDechet::class, mappedBy: 'idUser')]
+    #[ORM\OneToMany(targetEntity: CollecteDechet::class, mappedBy: 'idZone')]
     private Collection $collecteDechets;
 
     public function __construct()
@@ -64,74 +64,74 @@ class User
         return $this;
     }
 
-    public function getPrenom(): ?string
+    public function getAdresse(): ?string
     {
-        return $this->prenom;
+        return $this->adresse;
     }
 
-    public function setPrenom(string $prenom): static
+    public function setAdresse(string $adresse): static
     {
-        $this->prenom = $prenom;
+        $this->adresse = $adresse;
 
         return $this;
     }
 
-    public function getEmail(): ?string
+    public function getLatitude(): ?float
     {
-        return $this->email;
+        return $this->latitude;
     }
 
-    public function setEmail(string $email): static
+    public function setLatitude(float $latitude): static
     {
-        $this->email = $email;
+        $this->latitude = $latitude;
 
         return $this;
     }
 
-    public function getMotDePasse(): ?string
+    public function getLongitude(): ?float
     {
-        return $this->motDePasse;
+        return $this->longitude;
     }
 
-    public function setMotDePasse(string $motDePasse): static
+    public function setLongitude(float $longitude): static
     {
-        $this->motDePasse = $motDePasse;
+        $this->longitude = $longitude;
 
         return $this;
     }
 
-    public function getTelephone(): ?string
+    public function getCapacite(): ?int
     {
-        return $this->telephone;
+        return $this->capacite;
     }
 
-    public function setTelephone(string $telephone): static
+    public function setCapacite(int $capacite): static
     {
-        $this->telephone = $telephone;
+        $this->capacite = $capacite;
 
         return $this;
     }
 
-    public function getAddresse(): ?string
+    public function getHoraires(): ?string
     {
-        return $this->addresse;
+        return $this->horaires;
     }
 
-    public function setAddresse(string $addresse): static
+    public function setHoraires(string $horaires): static
     {
-        $this->addresse = $addresse;
+        $this->horaires = $horaires;
 
         return $this;
     }
 
-    public function getRole(): ?RoleUser
+    public function getTypeDechet(): ?TypeDechet
     {
-        return $this->role;
+        return $this->typeDechet;
     }
 
-    public function setRole(RoleUser $role): static
+    public function setTypeDechet(TypeDechet $typeDechet): static
     {
-        $this->role = $role;
+        $this->typeDechet = $typeDechet;
 
         return $this;
     }
@@ -148,7 +148,7 @@ class User
     {
         if (!$this->collecteDechets->contains($collecteDechet)) {
             $this->collecteDechets->add($collecteDechet);
-            $collecteDechet->setIdUser($this);
+            $collecteDechet->setIdZone($this);
         }
 
         return $this;
@@ -158,8 +158,8 @@ class User
     {
         if ($this->collecteDechets->removeElement($collecteDechet)) {
             // set the owning side to null (unless already changed)
-            if ($collecteDechet->getIdUser() === $this) {
-                $collecteDechet->setIdUser(null);
+            if ($collecteDechet->getIdZone() === $this) {
+                $collecteDechet->setIdZone(null);
             }
         }
 
