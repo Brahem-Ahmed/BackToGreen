@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+<title>ZoneCollecte index</title>
+
+{% block body %}
+    <h1>ZoneCollecte index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nom</th>
+                <th>Adresse</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Capacite</th>
+                <th>Horaires</th>
+                <th>TypeDechet</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for zone_collecte in zone_collectes %}
+            <tr>
+                <td>{{ zone_collecte.id }}</td>
+                <td>{{ zone_collecte.nom }}</td>
+                <td>{{ zone_collecte.adresse }}</td>
+                <td>{{ zone_collecte.latitude }}</td>
+                <td>{{ zone_collecte.longitude }}</td>
+                <td>{{ zone_collecte.capacite }}</td>
+                <td>{{ zone_collecte.horaires }}</td>
+                <td>{{ zone_collecte.typeDechet }}</td>
+                <td>
+                    <a href="{{ path('app_zone_collecte_show', {'id': zone_collecte.id}) }}">show</a>
+                    <a href="{{ path('app_zone_collecte_edit', {'id': zone_collecte.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="9">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_zone_collecte_new') }}">Create new</a>
+{% endblock %}
