@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+
+<title>New ZoneCollecte</title>
+
+{% block body %}
+    <h1>Create new ZoneCollecte</h1>
+
+    {{ include('zone_collecte/_form.html.twig') }}
+
+    <a href="{{ path('app_zone_collecte_index') }}">back to list</a>
+{% endblock %}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+
+<title>ZoneCollecte</title>
+
+{% block body %}
+    <h1>ZoneCollecte</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ zone_collecte.id }}</td>
+            </tr>
+            <tr>
+                <th>Nom</th>
+                <td>{{ zone_collecte.nom }}</td>
+            </tr>
+            <tr>
+                <th>Adresse</th>
+                <td>{{ zone_collecte.adresse }}</td>
+            </tr>
+            <tr>
+                <th>Latitude</th>
+                <td>{{ zone_collecte.latitude }}</td>
+            </tr>
+            <tr>
+                <th>Longitude</th>
+                <td>{{ zone_collecte.longitude }}</td>
+            </tr>
+            <tr>
+                <th>Capacite</th>
+                <td>{{ zone_collecte.capacite }}</td>
+            </tr>
+            <tr>
+                <th>Horaires</th>
+                <td>{{ zone_collecte.horaires }}</td>
+            </tr>
+            <tr>
+                <th>TypeDechet</th>
+                <td>{{ zone_collecte.typeDechet }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_zone_collecte_index') }}">back to list</a>
+
+    <a href="{{ path('app_zone_collecte_edit', {'id': zone_collecte.id}) }}">edit</a>
+
+    {{ include('zone_collecte/_delete_form.html.twig') }}
+{% endblock %}

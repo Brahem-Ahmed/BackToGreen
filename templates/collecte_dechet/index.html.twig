@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+
+<title>CollecteDechet index</title>
+
+{% block body %}
+    <h1>CollecteDechet index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>DateCollecte</th>
+                <th>Quantite</th>
+                <th>TypeDechet</th>
+                <th>Statut</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for collecte_dechet in collecte_dechets %}
+            <tr>
+                <td>{{ collecte_dechet.id }}</td>
+                <td>{{ collecte_dechet.dateCollecte ? collecte_dechet.dateCollecte|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ collecte_dechet.quantite }}</td>
+                <td>{{ collecte_dechet.typeDechet }}</td>
+                <td>{{ collecte_dechet.statut }}</td>
+                <td>
+                    <a href="{{ path('app_collecte_dechet_show', {'id': collecte_dechet.id}) }}">show</a>
+                    <a href="{{ path('app_collecte_dechet_edit', {'id': collecte_dechet.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_collecte_dechet_new') }}">Create new</a>
+{% endblock %}

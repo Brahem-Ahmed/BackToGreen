@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+
+<title>New CollecteDechet</title>
+
+{% block body %}
+    <h1>Create new CollecteDechet</h1>
+
+    {{ include('collecte_dechet/_form.html.twig') }}
+
+    <a href="{{ path('app_collecte_dechet_index') }}">back to list</a>
+{% endblock %}
