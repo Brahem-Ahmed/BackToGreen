@@ -36,15 +36,25 @@ class User
     #[ORM\Column(enumType: RoleUser::class)]
     private ?RoleUser $role = null;
 
+  
+
     /**
-     * @var Collection<int, CollecteDechet>
+     * @var Collection<int, Groupe>
      */
-    #[ORM\OneToMany(targetEntity: CollecteDechet::class, mappedBy: 'idUser')]
-    private Collection $collecteDechets;
+    #[ORM\OneToMany(targetEntity: Groupe::class, mappedBy: 'idCreateur')]
+    private Collection $groupes;
+
+    /**
+     * @var Collection<int, MembreGroupe>
+     */
+    #[ORM\OneToMany(targetEntity: MembreGroupe::class, mappedBy: 'idUser')]
+    private Collection $membreGroupes;
 
     public function __construct()
     {
         $this->collecteDechets = new ArrayCollection();
+        $this->groupes = new ArrayCollection();
+        $this->membreGroupes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -160,6 +170,66 @@ class User
             // set the owning side to null (unless already changed)
             if ($collecteDechet->getIdUser() === $this) {
                 $collecteDechet->setIdUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Groupe>
+     */
+    public function getGroupes(): Collection
+    {
+        return $this->groupes;
+    }
+
+    public function addGroupe(Groupe $groupe): static
+    {
+        if (!$this->groupes->contains($groupe)) {
+            $this->groupes->add($groupe);
+            $groupe->setIdCreateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGroupe(Groupe $groupe): static
+    {
+        if ($this->groupes->removeElement($groupe)) {
+            // set the owning side to null (unless already changed)
+            if ($groupe->getIdCreateur() === $this) {
+                $groupe->setIdCreateur(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, MembreGroupe>
+     */
+    public function getMembreGroupes(): Collection
+    {
+        return $this->membreGroupes;
+    }
+
+    public function addMembreGroupe(MembreGroupe $membreGroupe): static
+    {
+        if (!$this->membreGroupes->contains($membreGroupe)) {
+            $this->membreGroupes->add($membreGroupe);
+            $membreGroupe->setIdUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMembreGroupe(MembreGroupe $membreGroupe): static
+    {
+        if ($this->membreGroupes->removeElement($membreGroupe)) {
+            // set the owning side to null (unless already changed)
+            if ($membreGroupe->getIdUser() === $this) {
+                $membreGroupe->setIdUser(null);
             }
         }
 
