@@ -49,9 +49,16 @@ class EvenementEcologique
     #[ORM\OneToMany(targetEntity: Participation::class, mappedBy: 'idEvenement')]
     private Collection $participations;
 
+    /**
+     * @var Collection<int, Avis>
+     */
+    #[ORM\OneToMany(targetEntity: Avis::class, mappedBy: 'idEvenement')]
+    private Collection $avis;
+
     public function __construct()
     {
         $this->participations = new ArrayCollection();
+        $this->avis = new ArrayCollection();
     }
 
 
@@ -186,6 +193,36 @@ class EvenementEcologique
             // set the owning side to null (unless already changed)
             if ($participation->getIdEvenement() === $this) {
                 $participation->setIdEvenement(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Avis>
+     */
+    public function getAvis(): Collection
+    {
+        return $this->avis;
+    }
+
+    public function addAvi(Avis $avi): static
+    {
+        if (!$this->avis->contains($avi)) {
+            $this->avis->add($avi);
+            $avi->setIdEvenement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAvi(Avis $avi): static
+    {
+        if ($this->avis->removeElement($avi)) {
+            // set the owning side to null (unless already changed)
+            if ($avi->getIdEvenement() === $this) {
+                $avi->setIdEvenement(null);
             }
         }
 
