@@ -2,39 +2,39 @@
 
 namespace App\Repository;
 
-use App\Entity\CollecteDechet;
+use App\Entity\MembreGroupe;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<CollecteDechet>
+ * @extends ServiceEntityRepository<MembreGroupe>
  */
-class CollecteDechetRepository extends ServiceEntityRepository
+class MembreGroupeRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, CollecteDechet::class);
+        parent::__construct($registry, MembreGroupe::class);
     }
 
 //    /**
-//     * @return CollecteDechet[] Returns an array of CollecteDechet objects
+//     * @return MembreGroupe[] Returns an array of MembreGroupe objects
 //     */
 //    public function findByExampleField($value): array
 //    {
-//        return $this->createQueryBuilder('c')
-//            ->andWhere('c.exampleField = :val')
+//        return $this->createQueryBuilder('m')
+//            ->andWhere('m.exampleField = :val')
 //            ->setParameter('val', $value)
-//            ->orderBy('c.id', 'ASC')
+//            ->orderBy('m.id', 'ASC')
 //            ->setMaxResults(10)
 //            ->getQuery()
 //            ->getResult()
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?CollecteDechet
+//    public function findOneBySomeField($value): ?MembreGroupe
 //    {
-//        return $this->createQueryBuilder('c')
-//            ->andWhere('c.exampleField = :val')
+//        return $this->createQueryBuilder('m')
+//            ->andWhere('m.exampleField = :val')
 //            ->setParameter('val', $value)
 //            ->getQuery()
 //            ->getOneOrNullResult()

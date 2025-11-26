@@ -36,8 +36,10 @@ class User
     #[ORM\Column(type: 'string', enumType: RoleUser::class)]
     private ?RoleUser $role = null;
 
+  
+
     /**
-     * @var Collection<int, CollecteDechet>
+     * @var Collection<int, Groupe>
      */
     #[ORM\OneToMany(targetEntity: CollecteDechet::class, mappedBy: 'idUser')]
     private Collection $collecteDechets;
