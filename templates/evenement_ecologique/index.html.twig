@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+<title>EvenementEcologique index</title>
+
+{% block body %}
+    <h1>EvenementEcologique index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Titre</th>
+                <th>Description</th>
+                <th>DateDebut</th>
+                <th>DateFin</th>
+                <th>Lieu</th>
+                <th>CapaciteMax</th>
+                <th>Categorie</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for evenement_ecologique in evenement_ecologiques %}
+            <tr>
+                <td>{{ evenement_ecologique.id }}</td>
+                <td>{{ evenement_ecologique.titre }}</td>
+                <td>{{ evenement_ecologique.description }}</td>
+                <td>{{ evenement_ecologique.dateDebut }}</td>
+                <td>{{ evenement_ecologique.dateFin }}</td>
+                <td>{{ evenement_ecologique.lieu }}</td>
+                <td>{{ evenement_ecologique.capaciteMax }}</td>
+                <td>{{ evenement_ecologique.categorie }}</td>
+                <td>
+                    <a href="{{ path('app_evenement_ecologique_show', {'id': evenement_ecologique.id}) }}">show</a>
+                    <a href="{{ path('app_evenement_ecologique_edit', {'id': evenement_ecologique.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="9">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_evenement_ecologique_new') }}">Create new</a>
+{% endblock %}
