@@ -33,7 +33,7 @@ class User
     #[ORM\Column(length: 255)]
     private ?string $addresse = null;
 
-    #[ORM\Column(enumType: RoleUser::class)]
+    #[ORM\Column(type: 'string', enumType: RoleUser::class)]
     private ?RoleUser $role = null;
 
     /**
