@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+
+<title>Edit CollecteDechet</title>
+
+{% block body %}
+    <h1>Edit CollecteDechet</h1>
+
+    {{ include('collecte_dechet/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_collecte_dechet_index') }}">back to list</a>
+
+    {{ include('collecte_dechet/_delete_form.html.twig') }}
+{% endblock %}
