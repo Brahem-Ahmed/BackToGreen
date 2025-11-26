@@ -36,7 +36,7 @@ class EvenementEcologique
 
     
 
-    #[ORM\Column(type: Types::SIMPLE_ARRAY, enumType: CategorieEvenement::class)]
+    #[ORM\Column(type: 'string', enumType: CategorieEvenement::class)]
     private array $categorie = [];
 
     #[ORM\ManyToOne]
