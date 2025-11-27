@@ -33,28 +33,32 @@ class User
     #[ORM\Column(length: 255)]
     private ?string $addresse = null;
 
-    #[ORM\Column(enumType: RoleUser::class)]
+    #[ORM\Column(type: 'string', enumType: RoleUser::class)]
     private ?RoleUser $role = null;
 
-  
+    /**
+     * @var Collection<int, CollecteDechet>
+     */
+    #[ORM\OneToMany(targetEntity: CollecteDechet::class, mappedBy: 'idUser')]
+    private Collection $collecteDechets;
 
     /**
-     * @var Collection<int, Groupe>
+     * @var Collection<int, Reclamation>
      */
-    #[ORM\OneToMany(targetEntity: Groupe::class, mappedBy: 'idCreateur')]
-    private Collection $groupes;
+    #[ORM\OneToMany(targetEntity: Reclamation::class, mappedBy: 'idUser')]
+    private Collection $reclamations;
 
     /**
-     * @var Collection<int, MembreGroupe>
+     * @var Collection<int, Avis>
      */
-    #[ORM\OneToMany(targetEntity: MembreGroupe::class, mappedBy: 'idUser')]
-    private Collection $membreGroupes;
+    #[ORM\OneToMany(targetEntity: Avis::class, mappedBy: 'idUser')]
+    private Collection $avis;
 
     public function __construct()
     {
         $this->collecteDechets = new ArrayCollection();
-        $this->groupes = new ArrayCollection();
-        $this->membreGroupes = new ArrayCollection();
+        $this->reclamations = new ArrayCollection();
+        $this->avis = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -177,29 +181,29 @@ class User
     }
 
     /**
-     * @return Collection<int, Groupe>
+     * @return Collection<int, Reclamation>
      */
-    public function getGroupes(): Collection
+    public function getReclamations(): Collection
     {
-        return $this->groupes;
+        return $this->reclamations;
     }
 
-    public function addGroupe(Groupe $groupe): static
+    public function addReclamation(Reclamation $reclamation): static
     {
-        if (!$this->groupes->contains($groupe)) {
-            $this->groupes->add($groupe);
-            $groupe->setIdCreateur($this);
+        if (!$this->reclamations->contains($reclamation)) {
+            $this->reclamations->add($reclamation);
+            $reclamation->setIdUser($this);
         }
 
         return $this;
     }
 
-    public function removeGroupe(Groupe $groupe): static
+    public function removeReclamation(Reclamation $reclamation): static
     {
-        if ($this->groupes->removeElement($groupe)) {
+        if ($this->reclamations->removeElement($reclamation)) {
             // set the owning side to null (unless already changed)
-            if ($groupe->getIdCreateur() === $this) {
-                $groupe->setIdCreateur(null);
+            if ($reclamation->getIdUser() === $this) {
+                $reclamation->setIdUser(null);
             }
         }
 
@@ -207,29 +211,29 @@ class User
     }
 
     /**
-     * @return Collection<int, MembreGroupe>
+     * @return Collection<int, Avis>
      */
-    public function getMembreGroupes(): Collection
+    public function getAvis(): Collection
     {
-        return $this->membreGroupes;
+        return $this->avis;
     }
 
-    public function addMembreGroupe(MembreGroupe $membreGroupe): static
+    public function addAvi(Avis $avi): static
     {
-        if (!$this->membreGroupes->contains($membreGroupe)) {
-            $this->membreGroupes->add($membreGroupe);
-            $membreGroupe->setIdUser($this);
+        if (!$this->avis->contains($avi)) {
+            $this->avis->add($avi);
+            $avi->setIdUser($this);
         }
 
         return $this;
     }
 
-    public function removeMembreGroupe(MembreGroupe $membreGroupe): static
+    public function removeAvi(Avis $avi): static
     {
-        if ($this->membreGroupes->removeElement($membreGroupe)) {
+        if ($this->avis->removeElement($avi)) {
             // set the owning side to null (unless already changed)
-            if ($membreGroupe->getIdUser() === $this) {
-                $membreGroupe->setIdUser(null);
+            if ($avi->getIdUser() === $this) {
+                $avi->setIdUser(null);
             }
         }
 
