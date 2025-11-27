@@ -2,39 +2,39 @@
 
 namespace App\Repository;
 
-use App\Entity\Groupe;
+use App\Entity\ZoneCollecte;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Groupe>
+ * @extends ServiceEntityRepository<ZoneCollecte>
  */
-class GroupeRepository extends ServiceEntityRepository
+class ZoneCollecteRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Groupe::class);
+        parent::__construct($registry, ZoneCollecte::class);
     }
 
     //    /**
-    //     * @return Groupe[] Returns an array of Groupe objects
+    //     * @return ZoneCollecte[] Returns an array of ZoneCollecte objects
     //     */
     //    public function findByExampleField($value): array
     //    {
-    //        return $this->createQueryBuilder('g')
-    //            ->andWhere('g.exampleField = :val')
+    //        return $this->createQueryBuilder('z')
+    //            ->andWhere('z.exampleField = :val')
     //            ->setParameter('val', $value)
-    //            ->orderBy('g.id', 'ASC')
+    //            ->orderBy('z.id', 'ASC')
     //            ->setMaxResults(10)
     //            ->getQuery()
     //            ->getResult()
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?Groupe
+    //    public function findOneBySomeField($value): ?ZoneCollecte
     //    {
-    //        return $this->createQueryBuilder('g')
-    //            ->andWhere('g.exampleField = :val')
+    //        return $this->createQueryBuilder('z')
+    //            ->andWhere('z.exampleField = :val')
     //            ->setParameter('val', $value)
     //            ->getQuery()
     //            ->getOneOrNullResult()
