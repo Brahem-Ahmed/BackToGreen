@@ -1,0 +1,156 @@
+<?php
+
+namespace App\Service;
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use Psr\Log\LoggerInterface;
+
+class PHPMailerService
+{
+    private PHPMailer $mailer;
+    private LoggerInterface $logger;
+    private string $smtpHost;
+    private string $smtpUser;
+    private string $smtpPassword;
+    private int $smtpPort;
+    private string $smtpEncryption;
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+        $this->mailer = new PHPMailer(true);
+        
+        // Load SMTP configuration from environment
+        $this->smtpHost = $_ENV['SMTP_HOST'] ?? 'localhost';
+        $this->smtpUser = $_ENV['SMTP_USER'] ?? '';
+        $this->smtpPassword = $_ENV['SMTP_PASSWORD'] ?? '';
+        $this->smtpPort = (int)($_ENV['SMTP_PORT'] ?? 1025);
+        $this->smtpEncryption = $_ENV['SMTP_ENCRYPTION'] ?? 'tls';
+        
+        $this->configureMailer();
+    }
+
+    private function configureMailer(): void
+    {
+        try {
+            $this->mailer->isSMTP();
+            $this->mailer->Host = $this->smtpHost;
+            $this->mailer->Port = $this->smtpPort;
+            $this->mailer->SMTPSecure = $this->smtpEncryption === 'false' ? '' : $this->smtpEncryption;
+            $this->mailer->SMTPAuth = !empty($this->smtpUser);
+            
+            if (!empty($this->smtpUser)) {
+                $this->mailer->Username = $this->smtpUser;
+                $this->mailer->Password = $this->smtpPassword;
+            }
+            
+            // Set default sender
+            $this->mailer->setFrom('noreply@backtogreen.com', 'BackToGreen');
+            
+            // Enable debugging for development
+            if ($_ENV['APP_ENV'] === 'dev') {
+                $this->mailer->SMTPDebug = 0; // Set to 2 for detailed debug output
+            }
+        } catch (Exception $e) {
+            $this->logger->error('PHPMailer configuration failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Send an email
+     *
+     * @param string $toEmail Recipient email address
+     * @param string $toName Recipient name
+     * @param string $subject Email subject
+     * @param string $htmlBody HTML email body
+     * @param string|null $replyTo Optional reply-to email
+     * @return bool True if email was sent successfully
+     */
+    public function send(
+        string $toEmail,
+        string $toName,
+        string $subject,
+        string $htmlBody,
+        ?string $replyTo = null
+    ): bool
+    {
+        try {
+            // Clear previous recipients
+            $this->mailer->clearAllRecipients();
+            
+            // Add recipient
+            $this->mailer->addAddress($toEmail, $toName);
+            
+            // Add reply-to if provided
+            if ($replyTo) {
+                $this->mailer->addReplyTo($replyTo);
+            }
+            
+            // Set email content
+            $this->mailer->isHTML(true);
+            $this->mailer->Subject = $subject;
+            $this->mailer->Body = $htmlBody;
+            $this->mailer->AltBody = strip_tags($htmlBody);
+            
+            // Send the email
+            $this->mailer->send();
+            
+            $this->logger->info("Email sent successfully to $toEmail with subject: $subject");
+            return true;
+        } catch (Exception $e) {
+            $this->logger->error("Failed to send email to $toEmail: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Send an email to multiple recipients
+     *
+     * @param array $recipients Array of ['email' => 'name'] pairs
+     * @param string $subject Email subject
+     * @param string $htmlBody HTML email body
+     * @return bool True if email was sent successfully
+     */
+    public function sendToMultiple(array $recipients, string $subject, string $htmlBody): bool
+    {
+        try {
+            $this->mailer->clearAllRecipients();
+            
+            foreach ($recipients as $email => $name) {
+                $this->mailer->addAddress($email, $name);
+            }
+            
+            $this->mailer->isHTML(true);
+            $this->mailer->Subject = $subject;
+            $this->mailer->Body = $htmlBody;
+            $this->mailer->AltBody = strip_tags($htmlBody);
+            
+            $this->mailer->send();
+            
+            $this->logger->info("Email sent to " . count($recipients) . " recipients with subject: $subject");
+            return true;
+        } catch (Exception $e) {
+            $this->logger->error("Failed to send bulk email: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Test SMTP connection
+     *
+     * @return bool True if connection is successful
+     */
+    public function testConnection(): bool
+    {
+        try {
+            $this->mailer->smtpConnect();
+            $this->mailer->smtpClose();
+            $this->logger->info("SMTP connection test successful");
+            return true;
+        } catch (Exception $e) {
+            $this->logger->error("SMTP connection test failed: " . $e->getMessage());
+            return false;
+        }
+    }
+}
