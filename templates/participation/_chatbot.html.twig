@@ -1,0 +1,278 @@
+<div class="chatbot-container">
+    <div class="chatbot-header">
+        <i class="fas fa-robot me-2"></i>Assistant Événements
+        <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    
+    <div class="chatbot-messages" id="chatbotMessages">
+        <div class="message bot-message">
+            <div class="message-content">
+                <i class="fas fa-robot me-2"></i>
+                <span id="helpMessage">Bonjour! Je vais vous aider à trouver les événements qui vous intéressent.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="chatbot-input-area">
+        <div class="input-group">
+            <input type="text" 
+                   class="form-control" 
+                   id="chatbotInput" 
+                   placeholder="Décrivez le type d'événement que vous cherchez..."
+                   autocomplete="off">
+            <button class="btn btn-primary" type="button" id="sendChatMessage">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+        <small class="form-text text-muted mt-2">
+            💡 Exemples: "nettoyage", "plantation", "conférence écologique", "atelier pratique"
+        </small>
+    </div>
+</div>
+
+<style>
+.chatbot-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.chatbot-header {
+    background: linear-gradient(135deg, #1e7e34 0%, #2d9a4e 100%);
+    color: white;
+    padding: 1rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid #1e7e34;
+}
+
+.chatbot-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.message {
+    display: flex;
+    align-items: flex-start;
+    animation: slideIn 0.3s ease-in-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message.bot-message {
+    justify-content: flex-start;
+}
+
+.message.user-message {
+    justify-content: flex-end;
+}
+
+.message-content {
+    max-width: 85%;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    word-wrap: break-word;
+}
+
+.bot-message .message-content {
+    background: white;
+    color: #2c3e50;
+    border: 1px solid #e0e0e0;
+}
+
+.user-message .message-content {
+    background: #1e7e34;
+    color: white;
+    border-radius: 1rem 1rem 0 1rem;
+}
+
+.chatbot-input-area {
+    padding: 1rem;
+    border-top: 1px solid #ddd;
+    background: white;
+}
+
+.event-suggestion {
+    background: white;
+    border: 1px solid #1e7e34;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-top: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.event-suggestion:hover {
+    background: #f5f7fa;
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(30, 126, 52, 0.2);
+}
+
+.event-suggestion h6 {
+    color: #1e7e34;
+    margin: 0 0 0.5rem 0;
+    font-weight: bold;
+}
+
+.event-suggestion small {
+    color: #666;
+    display: block;
+}
+
+.event-suggestion .event-meta {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.event-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #1e7e34;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chatInput = document.getElementById('chatbotInput');
+    const sendBtn = document.getElementById('sendChatMessage');
+    const messagesContainer = document.getElementById('chatbotMessages');
+
+    // Load help message on init
+    loadHelpMessage();
+
+    sendBtn.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+
+    function loadHelpMessage() {
+        fetch('/api/chatbot/help')
+            .then(response => response.json())
+            .then(data => {
+                const helpMsg = document.getElementById('helpMessage');
+                if (helpMsg) {
+                    helpMsg.textContent = data.message;
+                }
+            });
+    }
+
+    function sendMessage() {
+        const message = chatInput.value.trim();
+        if (!message) return;
+
+        // Add user message to chat
+        addMessage(message, 'user');
+        chatInput.value = '';
+
+        // Send to chatbot API
+        fetch('/api/chatbot/message', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Add bot response
+                addMessage(data.message, 'bot');
+
+                // Add event suggestions
+                if (data.events && data.events.length > 0) {
+                    addEventSuggestions(data.events);
+                }
+            } else {
+                addMessage(data.message, 'bot');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            addMessage('Une erreur est survenue. Veuillez réessayer.', 'bot');
+        });
+    }
+
+    function addMessage(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}-message`;
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        
+        if (sender === 'bot') {
+            contentDiv.innerHTML = '<i class="fas fa-robot me-2"></i><span>' + escapeHtml(text) + '</span>';
+        } else {
+            contentDiv.textContent = text;
+        }
+        
+        messageDiv.appendChild(contentDiv);
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function addEventSuggestions(events) {
+        const suggestionDiv = document.createElement('div');
+        suggestionDiv.className = 'message bot-message';
+        suggestionDiv.innerHTML = '<div class="message-content" style="width: 100%; max-width: 100%;">';
+        
+        events.forEach(event => {
+            suggestionDiv.innerHTML += `
+                <div class="event-suggestion" onclick="selectEvent(${event.id}, '${event.titre.replace(/'/g, "\\'")}')">
+                    <h6><i class="fas fa-calendar-check me-2" style="color: #1e7e34;"></i>${escapeHtml(event.titre)}</h6>
+                    <small>${escapeHtml(event.description)}</small>
+                    <div class="event-meta">
+                        <span><i class="fas fa-calendar-alt"></i> ${event.dateDebut || 'TBD'}</span>
+                        <span><i class="fas fa-map-marker-alt"></i> ${escapeHtml(event.lieu)}</span>
+                        <span><i class="fas fa-users"></i> ${event.capaciteMax} places</span>
+                    </div>
+                </div>
+            `;
+        });
+        
+        suggestionDiv.innerHTML += '</div>';
+        messagesContainer.appendChild(suggestionDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    window.selectEvent = function(eventId, eventTitle) {
+        // Set the event in the form
+        const eventSelect = document.getElementById('participation_idEvenement');
+        if (eventSelect) {
+            eventSelect.value = eventId;
+            addMessage(`J'ai sélectionné "${eventTitle}" pour vous!`, 'user');
+            addMessage(`Super! "${eventTitle}" a été sélectionné. Vous pouvez maintenant remplir le reste du formulaire.`, 'bot');
+        }
+    };
+});
+</script>

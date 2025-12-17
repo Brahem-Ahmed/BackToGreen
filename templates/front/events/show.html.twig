@@ -1,0 +1,165 @@
+{% extends 'frontoffice/layout.html.twig' %}
+
+{% block title %}{{ event.titre }} - BackToGreen{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    {% for flash_message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>{{ flash_message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    {% for flash_message in app.flashes('error') %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>{{ flash_message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    {% for flash_message in app.flashes('warning') %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>{{ flash_message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    <div class="mb-3">
+        <a href="{{ path('app_front_events') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Retour aux événements
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header bg-gradient text-white py-4" style="background: linear-gradient(135deg, #2b7a0b 0%, #3d9a4e 100%);">
+            <h2 class="mb-0">
+                <i class="fas fa-leaf me-2"></i>{{ event.titre }}
+            </h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <h5 class="text-success border-bottom pb-2 mb-3">
+                        <i class="fas fa-info-circle me-2"></i>Description
+                    </h5>
+                    <p class="mb-4">{{ event.description }}</p>
+
+                    <h5 class="text-success border-bottom pb-2 mb-3">
+                        <i class="fas fa-calendar-alt me-2"></i>Informations
+                    </h5>
+                    <div class="row mb-3">
+                        <div class="col-sm-6 mb-3">
+                            <strong><i class="fas fa-map-marker-alt text-success me-2"></i>Lieu:</strong>
+                            <p>{{ event.lieu }}</p>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <strong><i class="fas fa-users text-success me-2"></i>Capacité:</strong>
+                            <p>{{ event.capaciteMax }} participants</p>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <strong><i class="fas fa-calendar text-success me-2"></i>Date de début:</strong>
+                            <p>{{ event.dateDebut ? event.dateDebut|date('d/m/Y à H:i') : 'À définir' }}</p>
+                        </div>
+                        <div class="col-sm-6 mb-3">
+                            <strong><i class="fas fa-calendar-check text-success me-2"></i>Date de fin:</strong>
+                            <p>{{ event.dateFin ? event.dateFin|date('d/m/Y à H:i') : 'À définir' }}</p>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <strong><i class="fas fa-tag text-success me-2"></i>Catégories:</strong>
+                            <div>
+                                {% set cats = event.categorie is iterable ? event.categorie : (event.categorie ? [event.categorie] : []) %}
+                                {% if cats|length > 0 %}
+                                    {% for c in cats %}
+                                        <span class="badge bg-success me-1">{{ c }}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-muted">Aucune catégorie</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h5 class="card-title text-center mb-4">
+                                <i class="fas fa-ticket-alt me-2"></i>Inscription
+                            </h5>
+
+                            <div class="text-center mb-3">
+                                <div class="display-6 fw-bold text-success">{{ availableSpots }}</div>
+                                <div class="text-muted">place(s) disponible(s)</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="progress" style="height: 25px;">
+                                    {% set percentage = (participationsCount / event.capaciteMax * 100)|round %}
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ percentage }}%">
+                                        {{ participationsCount }} / {{ event.capaciteMax }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if isPast %}
+                                <div class="alert alert-secondary text-center" role="alert">
+                                    <i class="fas fa-history fa-2x mb-2"></i>
+                                    <p class="mb-0"><strong>Événement terminé</strong></p>
+                                </div>
+                            {% elseif not isAvailable %}
+                                <div class="alert alert-danger text-center" role="alert">
+                                    <i class="fas fa-times-circle fa-2x mb-2"></i>
+                                    <p class="mb-0"><strong>Complet</strong></p>
+                                    <small>Toutes les places sont réservées</small>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-success text-center mb-3" role="alert">
+                                    <i class="fas fa-check-circle fa-2x mb-2"></i>
+                                    <p class="mb-0"><strong>Places disponibles !</strong></p>
+                                </div>
+
+                                {% if app.user %}
+                                    <form method="post" action="{{ path('app_front_event_register', {'id': event.id}) }}">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('register' ~ event.id) }}">
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-success btn-lg" onclick="return confirm('Confirmer votre inscription à cet événement ?')">
+                                                <i class="fas fa-user-plus me-2"></i>S'inscrire maintenant
+                                            </button>
+                                        </div>
+                                    </form>
+                                {% else %}
+                                    <div class="alert alert-info text-center" role="alert">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <p class="mb-2">Vous devez être connecté pour vous inscrire</p>
+                                        <div class="d-grid gap-2">
+                                            <a href="{{ path('app_login') }}" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+                                            </a>
+                                            <a href="{{ path('app_register') }}" class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-user-plus me-2"></i>Créer un compte
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if event.idOrganisateur %}
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="fas fa-user-tie me-2 text-success"></i>Organisateur
+                            </h6>
+                            <p class="mb-0">{{ event.idOrganisateur.prenom }} {{ event.idOrganisateur.nom }}</p>
+                            <small class="text-muted">{{ event.idOrganisateur.email }}</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

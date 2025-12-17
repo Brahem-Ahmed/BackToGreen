@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Participation;
 use App\Form\ParticipationType;
 use App\Repository\ParticipationRepository;
+use App\Service\ParticipationPdfService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,10 +16,25 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ParticipationController extends AbstractController
 {
     #[Route(name: 'app_participation_index', methods: ['GET'])]
-    public function index(ParticipationRepository $participationRepository): Response
+    public function index(Request $request, ParticipationRepository $participationRepository): Response
     {
+        $criteria = [
+            'user' => $request->query->get('user', ''),
+            'event' => $request->query->get('event', ''),
+            'statut' => $request->query->get('statut', ''),
+            'date' => $request->query->get('date', ''),
+        ];
+
+        $filteredCriteria = array_filter($criteria, fn($v) => $v !== null && $v !== '');
+        
+        // If no filters, get all participations, otherwise search
+        $participations = empty($filteredCriteria) 
+            ? $participationRepository->findAll() 
+            : $participationRepository->search($filteredCriteria);
+
         return $this->render('participation/index.html.twig', [
-            'participations' => $participationRepository->findAll(),
+            'participations' => $participations,
+            'filters' => $criteria,
         ]);
     }
 
@@ -77,5 +93,25 @@ final class ParticipationController extends AbstractController
         }
 
         return $this->redirectToRoute('app_participation_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}/pdf', name: 'app_participation_pdf', methods: ['GET'])]
+    public function generatePdf(Participation $participation, ParticipationPdfService $pdfService): Response
+    {
+        $html = $pdfService->generatePdfHtml($participation);
+
+        $response = new Response($html);
+        $response->headers->set('Content-Type', 'text/html; charset=utf-8');
+        $response->headers->set('Content-Disposition', 'inline; filename="participation-' . $participation->getId() . '.html"');
+
+        return $response;
+    }
+
+    #[Route('/{id}/ticket', name: 'app_participation_ticket', methods: ['GET'])]
+    public function ticket(Participation $participation): Response
+    {
+        return $this->render('participation/ticket.html.twig', [
+            'participation' => $participation,
+        ]);
     }
 }

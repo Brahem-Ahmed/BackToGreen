@@ -1,47 +1,172 @@
-<!DOCTYPE html>
+{% extends 'backoffice/layout.html.twig' %}
 
-<title>EvenementEcologique index</title>
+{% block title %}Event Management - BacktoGreen{% endblock %}
 
-{% block body %}
-    <h1>EvenementEcologique index</h1>
+{% block contenu %}
+    <main>
+        <div class="container-fluid px-4">
+            <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+                <h1 class="text-primary">
+                    <i class="fas fa-calendar-alt me-2"></i>Event Management
+                </h1>
+                <a href="{{ path('app_evenement_ecologique_new') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Create New Event
+                </a>
+            </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Titre</th>
-                <th>Description</th>
-                <th>DateDebut</th>
-                <th>DateFin</th>
-                <th>Lieu</th>
-                <th>CapaciteMax</th>
-                <th>Categorie</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for evenement_ecologique in evenement_ecologiques %}
-            <tr>
-                <td>{{ evenement_ecologique.id }}</td>
-                <td>{{ evenement_ecologique.titre }}</td>
-                <td>{{ evenement_ecologique.description }}</td>
-                <td>{{ evenement_ecologique.dateDebut }}</td>
-                <td>{{ evenement_ecologique.dateFin }}</td>
-                <td>{{ evenement_ecologique.lieu }}</td>
-                <td>{{ evenement_ecologique.capaciteMax }}</td>
-                <td>{{ evenement_ecologique.categorie }}</td>
-                <td>
-                    <a href="{{ path('app_evenement_ecologique_show', {'id': evenement_ecologique.id}) }}">show</a>
-                    <a href="{{ path('app_evenement_ecologique_edit', {'id': evenement_ecologique.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="9">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <form method="get" class="row g-2">
+                        <div class="col-sm-3">
+                            <input type="text" name="title" value="{{ filters.title|default('') }}" class="form-control" placeholder="Titre">
+                        </div>
+                        <div class="col-sm-2">
+                            <input type="text" name="categorie" value="{{ filters.categorie|default('') }}" class="form-control" placeholder="Catégorie">
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="text" name="lieu" value="{{ filters.lieu|default('') }}" class="form-control" placeholder="Lieu">
+                        </div>
+                        <div class="col-sm-2">
+                            <input type="date" name="date" value="{{ filters.date|default('') }}" class="form-control" placeholder="Date">
+                        </div>
+                        <div class="col-12 text-end mt-2">
+                            <button type="submit" class="btn btn-outline-primary btn-sm">Filtrer</button>
+                            <a href="{{ path('app_evenement_ecologique_index') }}" class="btn btn-outline-secondary btn-sm">Réinitialiser</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
-    <a href="{{ path('app_evenement_ecologique_new') }}">Create new</a>
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>All Ecological Events
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if evenement_ecologiques|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th><i class="fas fa-heading me-1"></i>Title</th>
+                                        <th><i class="fas fa-align-left me-1"></i>Description</th>
+                                        <th><i class="fas fa-play me-1"></i>Start Date</th>
+                                        <th><i class="fas fa-stop me-1"></i>End Date</th>
+                                        <th><i class="fas fa-map-marker-alt me-1"></i>Location</th>
+                                        <th><i class="fas fa-users me-1"></i>Capacity</th>
+                                        <th><i class="fas fa-tag me-1"></i>Category</th>
+                                        <th><i class="fas fa-user me-1"></i>Organizer</th>
+                                        <th><i class="fas fa-cogs me-1"></i>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for event in evenement_ecologiques %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ event.titre }}</strong>
+                                        </td>
+                                        <td>
+                                            {% if event.description|length > 50 %}
+                                                {{ event.description|slice(0, 50) }}...
+                                            {% else %}
+                                                {{ event.description }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                {{ event.dateDebut ? event.dateDebut|date('Y-m-d H:i') : '' }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                {{ event.dateFin ? event.dateFin|date('Y-m-d H:i') : '' }}
+                                            </small>
+                                        </td>
+                                        <td>{{ event.lieu }}</td>
+                                        <td>
+                                            <span class="badge bg-info">{{ event.capaciteMax }}</span>
+                                        </td>
+                                        <td>
+                                            {% set cats = event.categorie is iterable ? event.categorie : [] %}
+                                            {% if cats|length > 0 %}
+                                                {% for c in cats %}
+                                                    <span class="badge bg-success me-1">{{ c }}</span>
+                                                {% endfor %}
+                                            {% else %}
+                                                <span class="badge bg-secondary">No category</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if event.idOrganisateur %}
+                                                <small>{{ event.idOrganisateur.prenom }} {{ event.idOrganisateur.nom }}</small>
+                                            {% else %}
+                                                <span class="badge bg-secondary">No organizer</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ path('app_evenement_ecologique_show', {'id': event.id}) }}" 
+                                                   class="btn btn-outline-info btn-sm" 
+                                                   title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{{ path('app_evenement_ecologique_edit', {'id': event.id}) }}" 
+                                                   class="btn btn-outline-primary btn-sm" 
+                                                   title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" 
+                                                        class="btn btn-outline-danger btn-sm" 
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#deleteModal{{ event.id }}"
+                                                        title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+
+                                            <!-- Delete Modal -->
+                                            <div class="modal fade" id="deleteModal{{ event.id }}" tabindex="-1">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Confirm Delete</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Are you sure you want to delete event <strong>"{{ event.titre }}"</strong>?
+                                                            <br><small class="text-muted">This action cannot be undone.</small>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <form method="post" action="{{ path('app_evenement_ecologique_delete', {'id': event.id}) }}" style="display: inline;">
+                                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ event.id) }}">
+                                                                <button class="btn btn-danger">
+                                                                    <i class="fas fa-trash me-1"></i>Delete
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                            <h4 class="text-muted">No Events Found</h4>
+                            <p class="text-muted">Start by creating your first ecological event.</p>
+                            <a href="{{ path('app_evenement_ecologique_new') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-1"></i>Create First Event
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
 {% endblock %}

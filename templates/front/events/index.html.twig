@@ -1,0 +1,374 @@
+{% extends 'frontoffice/layout.html.twig' %}
+
+{% block title %}Événements Écologiques - BackToGreen{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 text-success mb-3">
+            <i class="fas fa-leaf me-3"></i><span class="translate" data-fr="Événements Écologiques">Événements Écologiques</span>
+        </h1>
+        <p class="lead text-muted translate" data-fr="Participez à nos événements pour un avenir plus vert">Participez à nos événements pour un avenir plus vert</p>
+    </div>
+
+    <!-- Language Selector -->
+    <div class="mb-3 d-flex justify-content-end align-items-center">
+        <label class="me-2 fw-bold"><i class="fas fa-language text-success"></i> <span class="translate" data-fr="Traduire">Traduire</span>:</label>
+        <select id="languageSelector" class="form-select form-select-sm w-auto">
+            <option value="">🇫🇷 Français</option>
+            <option value="en">🇬🇧 English</option>
+            <option value="ar">🇸🇦 العربية</option>
+            <option value="es">🇪🇸 Español</option>
+            <option value="de">🇩🇪 Deutsch</option>
+            <option value="it">🇮🇹 Italiano</option>
+            <option value="pt">🇵🇹 Português</option>
+            <option value="ru">🇷🇺 Русский</option>
+            <option value="zh">🇨🇳 中文</option>
+        </select>
+        <span id="loadingIndicator" class="ms-2 text-muted" style="display: none;">
+            <i class="fas fa-spinner fa-spin"></i> <span class="translate" data-fr="Traduction en cours...">Traduction en cours...</span>
+        </span>
+    </div>
+
+    <!-- Advanced Filters --><span class="translate" data-fr="Filtrer les événements">Filtrer les événements</span></h5>
+        </div>
+        <div class="card-body">
+            <form method="get" action="{{ path('app_front_events') }}">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="titre" class="form-label translate" data-fr="Titre">Titre</label>
+                        <input type="text" class="form-control" id="titre" name="titre" value="{{ filters.titre }}" placeholder="Rechercher...">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="lieu" class="form-label translate" data-fr="Lieu">Lieu</label>
+                        <input type="text" class="form-control" id="lieu" name="lieu" value="{{ filters.lieu }}" placeholder="Ville, région...">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="categorie" class="form-label translate" data-fr="Catégorie">Catégorie</label>
+                        <input type="text" class="form-control" id="categorie" name="categorie" value="{{ filters.categorie }}" placeholder="Reboisement...">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="disponible" class="form-label translate" data-fr="Disponibilité">Disponibilité</label>
+                        <select class="form-select" id="disponible" name="disponible">
+                            <option value="" class="translate" data-fr="Tous">Tous</option>
+                            <option value="oui" {{ filters.disponible == 'oui' ? 'selected' : '' }} class="translate" data-fr="Disponibles uniquement">Disponibles uniquement</option>
+                            <option value="non" {{ filters.disponible == 'non' ? 'selected' : '' }} class="translate" data-fr="Complets uniquement">Complets uniquement</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-search me-2"></i><span class="translate" data-fr="Rechercher">Rechercher</span>
+                    </button>
+                    <a href="{{ path('app_front_events') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-undo me-2"></i><span class="translate" data-fr="Réinitialiser">Réinitialiser</span>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% for flash_message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>{{ flash_message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    {% for flash_message in app.flashes('error') %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>{{ flash_message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    {% for flash_message in app.flashes('warning') %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>{{ flash_message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    <div class="row g-4">
+        {% for item in events %}
+            {% set event = item.event %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm hover-shadow" data-event-id="{{ event.id }}">
+                    <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #2b7a0b 0%, #3d9a4e 100%);">
+                        <h5 class="mb-0">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            <span class="event-titre" data-original="{{ event.titre }}">{{ event.titre }}</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small mb-3 event-description" data-original="{{ event.description }}">{{ event.description|length > 100 ? event.description|slice(0, 100) ~ '...' : event.description }}</p>
+                        
+                        <div class="mb-2">
+                            <i class="fas fa-map-marker-alt text-success me-2"></i>
+                            <strong>Lieu:</strong> <span class="event-lieu" data-original="{{ event.lieu }}">{{ event.lieu }}</span>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <i class="fas fa-calendar text-success me-2"></i>
+                            <strong class="translate" data-fr="Début">Début:</strong> {{ event.dateDebut ? event.dateDebut|date('d/m/Y H:i') : 'À définir' }}
+                        </div>
+                        
+                        <div class="mb-2">
+                            <i class="fas fa-calendar-check text-success me-2"></i>
+                            <strong class="translate" data-fr="Fin">Fin:</strong> {{ event.dateFin ? event.dateFin|date('d/m/Y H:i') : 'À définir' }}
+                        </div>
+
+                        <div class="mb-3">
+                            <i class="fas fa-tag text-success me-2"></i>
+                            <strong class="translate" data-fr="Catégories">Catégories:</strong>
+                            {% set cats = event.categorie is iterable ? event.categorie : (event.categorie ? [event.categorie] : []) %}
+                            {% if cats|length > 0 %}
+                                {% for c in cats %}
+                                    <span class="badge bg-success">{{ c }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted">Aucune</span>
+                            {% endif %}
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <i class="fas fa-users text-info me-2"></i>
+                                <strong class="translate" data-fr="Places">Places:</strong>
+                            </div>
+                            <div>
+                                {% if item.isAvailable %}
+                                    <span class="badge bg-success">{{ item.availableSpots }} <span class="translate" data-fr="disponible(s)">disponible(s)</span></span>
+                                {% else %}
+                                    <span class="badge bg-danger translate" data-fr="Complet">Complet</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if item.isPast %}
+                            <div class="alert alert-secondary mb-0" role="alert">
+                                <i class="fas fa-history me-2"></i><span class="translate" data-fr="Événement terminé">Événement terminé</span>
+                            </div>
+                        {% elseif not item.isAvailable %}
+                            <div class="alert alert-danger mb-0" role="alert">
+                                <i class="fas fa-times-circle me-2"></i><span class="translate" data-fr="Aucune place disponible">Aucune place disponible</span>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-success mb-0" role="alert">
+                                <i class="fas fa-check-circle me-2"></i><span class="translate" data-fr="Inscription disponible">Inscription disponible</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer bg-light">
+                        <div class="d-grid gap-2">
+                            <a href="{{ path('app_front_event_show', {'id': event.id}) }}" class="btn btn-outline-success">
+                                <i class="fas fa-info-circle me-2"></i><span class="translate" data-fr="Voir détails">Voir détails</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted translate" data-fr="Aucun événement disponible">Aucun événement disponible</h4>
+                    <p class="text-muted translate" data-fr="Revenez bientôt pour découvrir nos prochains événements écologiques.">Revenez bientôt pour découvrir nos prochains événements écologiques.</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.hover-shadow {
+    transition: all 0.3s ease;
+}
+.hover-shadow:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+}
+.translating {
+    opacity: 0.6;
+    pointer-events: none;
+}
+</style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Translation cache
+        const translationCache = new Map();
+        const loadingIndicator = document.getElementById('loadingIndicator');
+
+        // Collect all texts to translate
+        function collectTextsToTranslate() {
+            const texts = new Set();
+            
+            // Collect from static elements with .translate class
+            document.querySelectorAll('.translate[data-fr]').forEach(el => {
+                texts.add(el.dataset.fr);
+            });
+            
+            // Collect from event cards
+            document.querySelectorAll('.event-titre[data-original]').forEach(el => {
+                texts.add(el.dataset.original);
+            });
+            document.querySelectorAll('.event-description[data-original]').forEach(el => {
+                texts.add(el.dataset.original);
+            });
+            document.querySelectorAll('.event-lieu[data-original]').forEach(el => {
+                texts.add(el.dataset.original);
+            });
+            
+            return Array.from(texts);
+        }
+
+        // Translate text using Google Translate API
+        async function translateText(text, targetLang) {
+            if (!text || !targetLang) return text;
+            
+            try {
+                const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=fr&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data && data[0]) {
+                    let translated = '';
+                    for (let sentence of data[0]) {
+                        if (sentence[0]) {
+                            translated += sentence[0];
+                        }
+                    }
+                    return translated || text;
+                }
+                return text;
+            } catch (error) {
+                console.error('Translation error:', error);
+                return text;
+            }
+        }
+
+        // Translate all texts in batch
+        async function translateAllTexts(texts, targetLang) {
+            const cacheKey = targetLang;
+            
+            // Check cache
+            if (translationCache.has(cacheKey)) {
+                return translationCache.get(cacheKey);
+            }
+
+            const translations = new Map();
+            
+            // Translate in batches to avoid overwhelming the API
+            const batchSize = 10;
+            for (let i = 0; i < texts.length; i += batchSize) {
+                const batch = texts.slice(i, i + batchSize);
+                const promises = batch.map(text => 
+                    translateText(text, targetLang).then(translated => {
+                        translations.set(text, translated);
+                    })
+                );
+                await Promise.all(promises);
+            }
+            
+            // Cache results
+            translationCache.set(cacheKey, translations);
+            return translations;
+        }
+
+        // Apply translations to page
+        function applyTranslations(translations, lang) {
+            if (!lang) {
+                // Restore French
+                document.querySelectorAll('.translate[data-fr]').forEach(el => {
+                    el.textContent = el.dataset.fr;
+                });
+                document.querySelectorAll('.event-titre[data-original]').forEach(el => {
+                    el.textContent = el.dataset.original;
+                });
+                document.querySelectorAll('.event-description[data-original]').forEach(el => {
+                    const original = el.dataset.original;
+                    el.textContent = original.length > 100 ? original.substring(0, 100) + '...' : original;
+                });
+                document.querySelectorAll('.event-lieu[data-original]').forEach(el => {
+                    el.textContent = el.dataset.original;
+                });
+                return;
+            }
+
+            // Apply translations
+            document.querySelectorAll('.translate[data-fr]').forEach(el => {
+                const original = el.dataset.fr;
+                const translated = translations.get(original);
+                if (translated) {
+                    el.textContent = translated;
+                }
+            });
+            
+            document.querySelectorAll('.event-titre[data-original]').forEach(el => {
+                const original = el.dataset.original;
+                const translated = translations.get(original);
+                if (translated) {
+                    el.textContent = translated;
+                }
+            });
+            
+            document.querySelectorAll('.event-description[data-original]').forEach(el => {
+                const original = el.dataset.original;
+                const translated = translations.get(original);
+                if (translated) {
+                    el.textContent = translated.length > 100 ? translated.substring(0, 100) + '...' : translated;
+                }
+            });
+            
+            document.querySelectorAll('.event-lieu[data-original]').forEach(el => {
+                const original = el.dataset.original;
+                const translated = translations.get(original);
+                if (translated) {
+                    el.textContent = translated;
+                }
+            });
+        }
+
+        // Handle language selector change
+        document.getElementById('languageSelector').addEventListener('change', async function() {
+            const lang = this.value;
+            
+            console.log('Language selected:', lang);
+            
+            if (!lang) {
+                applyTranslations(null, null);
+                return;
+            }
+
+            // Show loading
+            loadingIndicator.style.display = 'inline';
+            
+            try {
+                // Collect all texts
+                const texts = collectTextsToTranslate();
+                console.log('Texts to translate:', texts.length);
+                
+                // Translate
+                const translations = await translateAllTexts(texts, lang);
+                console.log('Translations received:', translations.size);
+                
+                // Apply
+                applyTranslations(translations, lang);
+                console.log('Translations applied');
+            } catch (error) {
+                console.error('Translation failed:', error);
+                alert('Translation failed: ' + error.message);
+            } finally {
+                // Hide loading
+                loadingIndicator.style.display = 'none';
+            }
+        });
+        
+        console.log('Translation system initialized');
+    </script>
+{% endblock %}

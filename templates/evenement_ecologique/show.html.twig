@@ -1,11 +1,12 @@
-<!DOCTYPE html>
+{% extends 'backoffice/layout.html.twig' %}
 
-<title>EvenementEcologique</title>
+{% block title %}Event Details - BacktoGreen{% endblock %}
 
-{% block body %}
-    <h1>EvenementEcologique</h1>
+{% block contenu %}
+    <main class="container px-4 px-lg-5 my-5">
+    <h1 class="text-primary mb-4"><i class="fas fa-leaf me-2"></i>Event Details</h1>
 
-    <table class="table">
+    <table class="table table-striped">
         <tbody>
             <tr>
                 <th>Id</th>
@@ -13,23 +14,23 @@
             </tr>
             <tr>
                 <th>Titre</th>
-                <td>{{ evenement_ecologique.titre }}</td>
+                <td id="event-titre">{{ evenement_ecologique.titre }}</td>
             </tr>
             <tr>
                 <th>Description</th>
-                <td>{{ evenement_ecologique.description }}</td>
+                <td id="event-description">{{ evenement_ecologique.description }}</td>
             </tr>
             <tr>
-                <th>DateDebut</th>
-                <td>{{ evenement_ecologique.dateDebut }}</td>
+                <th>Start Date</th>
+                <td>{{ evenement_ecologique.dateDebut ? evenement_ecologique.dateDebut|date('Y-m-d H:i') : '' }}</td>
             </tr>
             <tr>
-                <th>DateFin</th>
-                <td>{{ evenement_ecologique.dateFin }}</td>
+                <th>End Date</th>
+                <td>{{ evenement_ecologique.dateFin ? evenement_ecologique.dateFin|date('Y-m-d H:i') : '' }}</td>
             </tr>
             <tr>
                 <th>Lieu</th>
-                <td>{{ evenement_ecologique.lieu }}</td>
+                <td id="event-lieu">{{ evenement_ecologique.lieu }}</td>
             </tr>
             <tr>
                 <th>CapaciteMax</th>
@@ -37,14 +38,119 @@
             </tr>
             <tr>
                 <th>Categorie</th>
-                <td>{{ evenement_ecologique.categorie }}</td>
+                <td>
+                    {% set cats = evenement_ecologique.categorie is iterable ? evenement_ecologique.categorie : [] %}
+                    {% if cats|length > 0 %}
+                        {% for c in cats %}
+                            <span class="badge bg-success me-1">{{ c }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <span class="text-muted">No categories assigned</span>
+                    {% endif %}
+                </td>
             </tr>
         </tbody>
     </table>
 
-    <a href="{{ path('app_evenement_ecologique_index') }}">back to list</a>
+    <div class="mt-3 d-flex gap-2 flex-wrap align-items-center">
+        <a href="{{ path('app_evenement_ecologique_index') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Back to list
+        </a>
+        <a href="{{ path('app_evenement_ecologique_edit', {'id': evenement_ecologique.id}) }}" class="btn btn-outline-primary">
+            <i class="fas fa-edit me-1"></i>Edit
+        </a>
+        <a href="{{ path('app_evenement_ecologique_statistics', {'id': evenement_ecologique.id}) }}" class="btn btn-info">
+            <i class="fas fa-chart-bar me-1"></i>Statistiques
+        </a>
+        <a href="{{ path('app_evenement_ecologique_export', {'id': evenement_ecologique.id}) }}" class="btn btn-success">
+            <i class="fas fa-file-csv me-1"></i>Export CSV
+        </a>
+        
+        <div class="ms-auto">
+            <label class="me-2"><i class="fas fa-language"></i> Translate:</label>
+            <select id="languageSelector" class="form-select form-select-sm d-inline-block w-auto">
+                <option value="">-- Select Language --</option>
+                <option value="en">🇬🇧 English</option>
+                <option value="ar">🇸🇦 العربية</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="de">🇩🇪 Deutsch</option>
+                <option value="it">🇮🇹 Italiano</option>
+                <option value="pt">🇵🇹 Português</option>
+                <option value="ru">🇷🇺 Русский</option>
+                <option value="zh">🇨🇳 中文</option>
+            </select>
+        </div>
+        
+        {{ include('evenement_ecologique/_delete_form.html.twig') }}
+    </div>
+    </main>
+{% endblock %}
 
-    <a href="{{ path('app_evenement_ecologique_edit', {'id': evenement_ecologique.id}) }}">edit</a>
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        const eventId = {{ evenement_ecologique.id }};
+        const originalData = {
+            titre: {{ evenement_ecologique.titre|json_encode|raw }},
+            description: {{ evenement_ecologique.description|json_encode|raw }},
+            lieu: {{ evenement_ecologique.lieu|json_encode|raw }}
+        };
 
-    {{ include('evenement_ecologique/_delete_form.html.twig') }}
+        document.getElementById('languageSelector').addEventListener('change', async function() {
+            const lang = this.value;
+            
+            console.log('Language selected:', lang);
+            
+            const titreEl = document.getElementById('event-titre');
+            const descEl = document.getElementById('event-description');
+            const lieuEl = document.getElementById('event-lieu');
+            
+            if (!lang) {
+                // Restaurer les données originales
+                titreEl.textContent = originalData.titre;
+                descEl.textContent = originalData.description;
+                lieuEl.textContent = originalData.lieu;
+                console.log('Restored original text');
+                return;
+            }
+
+            try {
+                console.log('Fetching translation from:', `/evenementecologique/${eventId}/translate?lang=${lang}`);
+                
+                const response = await fetch(`/evenementecologique/${eventId}/translate?lang=${lang}`);
+                const data = await response.json();
+                
+                console.log('Translation response:', data);
+
+                if (data.success) {
+                    // Mettre à jour les champs traduits
+                    titreEl.innerHTML = 
+                        `<div class="alert alert-info p-2 mb-0">
+                            <small><i class="fas fa-language"></i> Translated to ${lang.toUpperCase()}:</small><br>
+                            <strong>${data.translated.titre}</strong>
+                        </div>`;
+                    
+                    descEl.innerHTML = 
+                        `<div class="alert alert-info p-2 mb-0">
+                            <small><i class="fas fa-language"></i> Translated to ${lang.toUpperCase()}:</small><br>
+                            ${data.translated.description}
+                        </div>`;
+                    
+                    lieuEl.innerHTML = 
+                        `<div class="alert alert-info p-2 mb-0">
+                            <small><i class="fas fa-language"></i> Translated to ${lang.toUpperCase()}:</small><br>
+                            ${data.translated.lieu}
+                        </div>`;
+                    
+                    console.log('Translation applied successfully');
+                } else {
+                    console.error('Translation failed:', data);
+                    alert('Translation failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Translation error:', error);
+                alert('Translation failed: ' + error.message);
+            }
+        });
+    </script>
 {% endblock %}

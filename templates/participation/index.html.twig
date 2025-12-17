@@ -1,39 +1,178 @@
-<!DOCTYPE html>
+{% extends 'backoffice/layout.html.twig' %}
 
-<title>Participation index</title>
+{% block title %}Participation Management - BacktoGreen{% endblock %}
 
-{% block body %}
-    <h1>Participation index</h1>
+{% block contenu %}
+    <main>
+        <div class="container-fluid px-4">
+            <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+                <h1 class="text-primary">
+                    <i class="fas fa-calendar-check me-2"></i>Participation Management
+                </h1>
+                <a href="{{ path('app_participation_new') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Create New Participation
+                </a>
+            </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>IdUser</th>
-                <th>DateInscription</th>
-                <th>Statut</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for participation in participations %}
-            <tr>
-                <td>{{ participation.id }}</td>
-                <td>{{ participation.idUser }}</td>
-                <td>{{ participation.dateInscription ? participation.dateInscription|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ participation.statut }}</td>
-                <td>
-                    <a href="{{ path('app_participation_show', {'id': participation.id}) }}">show</a>
-                    <a href="{{ path('app_participation_edit', {'id': participation.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="5">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <form method="get" class="row g-2">
+                        <div class="col-sm-3">
+                            <input type="text" name="user" value="{{ filters.user|default('') }}" class="form-control" placeholder="Utilisateur (nom/prénom)">
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="text" name="event" value="{{ filters.event|default('') }}" class="form-control" placeholder="Événement">
+                        </div>
+                        <div class="col-sm-2">
+                            <input type="text" name="statut" value="{{ filters.statut|default('') }}" class="form-control" placeholder="Statut">
+                        </div>
+                        <div class="col-sm-2">
+                            <input type="date" name="date" value="{{ filters.date|default('') }}" class="form-control" placeholder="Date">
+                        </div>
+                        <div class="col-12 text-end mt-2">
+                            <button type="submit" class="btn btn-outline-primary btn-sm">Filtrer</button>
+                            <a href="{{ path('app_participation_index') }}" class="btn btn-outline-secondary btn-sm">Réinitialiser</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
-    <a href="{{ path('app_participation_new') }}">Create new</a>
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>All Participations
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if participations|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th><i class="fas fa-hashtag me-1"></i>ID</th>
+                                        <th><i class="fas fa-user me-1"></i>User</th>
+                                        <th><i class="fas fa-calendar-alt me-1"></i>Event</th>
+                                        <th><i class="fas fa-calendar-day me-1"></i>Registration Date</th>
+                                        <th><i class="fas fa-info-circle me-1"></i>Status</th>
+                                        <th><i class="fas fa-cogs me-1"></i>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for participation in participations %}
+                                    <tr>
+                                        <td class="fw-bold">{{ participation.id }}</td>
+                                        <td>
+                                            {% if participation.idUser %}
+                                                <div>
+                                                    <strong>{{ participation.idUser.prenom }} {{ participation.idUser.nom }}</strong>
+                                                    <br>
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-envelope me-1"></i>{{ participation.idUser.email }}
+                                                    </small>
+                                                </div>
+                                            {% else %}
+                                                <span class="badge bg-secondary">No user</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if participation.idEvenement %}
+                                                <div>
+                                                    <strong>{{ participation.idEvenement.titre }}</strong>
+                                                    <br>
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-map-marker-alt me-1"></i>{{ participation.idEvenement.lieu }}
+                                                    </small>
+                                                </div>
+                                            {% else %}
+                                                <span class="badge bg-secondary">No event</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">
+                                                {{ participation.dateInscription ? participation.dateInscription|date('Y-m-d H:i') : 'Not set' }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            {% if participation.statut %}
+                                                {% set status_value = participation.statut.value %}
+                                                {% set status_class = status_value == 'CONFIRME' ? 'bg-success' : 
+                                                                      status_value == 'INSCRIT' ? 'bg-info' : 
+                                                                      status_value == 'PRESENT' ? 'bg-success' :
+                                                                      status_value == 'ABSENT' ? 'bg-warning' :
+                                                                      status_value == 'ANNULE' ? 'bg-danger' : 'bg-secondary' %}
+                                                <span class="badge {{ status_class }}">{{ participation.statut.label }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">No status</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ path('app_participation_show', {'id': participation.id}) }}" 
+                                                   class="btn btn-outline-info btn-sm" 
+                                                   title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{{ path('app_participation_pdf', {'id': participation.id}) }}" target="_blank" rel="noopener" class="btn btn-outline-success btn-sm" title="Open PDF">
+                                                    <i class="fas fa-file-pdf"></i>
+                                                </a>
+                                                <a href="{{ path('app_participation_edit', {'id': participation.id}) }}" 
+                                                   class="btn btn-outline-primary btn-sm" 
+                                                   title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" 
+                                                        class="btn btn-outline-danger btn-sm" 
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#deleteModal{{ participation.id }}"
+                                                        title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+
+                                            <!-- Delete Modal -->
+                                            <div class="modal fade" id="deleteModal{{ participation.id }}" tabindex="-1">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Confirm Delete</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Are you sure you want to delete this participation record?
+                                                            {% if participation.idUser and participation.idEvenement %}
+                                                                <br><strong>User:</strong> {{ participation.idUser.prenom }} {{ participation.idUser.nom }}
+                                                                <br><strong>Event:</strong> {{ participation.idEvenement.titre }}
+                                                            {% endif %}
+                                                            <br><small class="text-muted">This action cannot be undone.</small>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <form method="post" action="{{ path('app_participation_delete', {'id': participation.id}) }}" style="display: inline;">
+                                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ participation.id) }}">
+                                                                <button class="btn btn-danger">Delete</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                            <h4 class="text-muted">No Participations Found</h4>
+                            <p class="text-muted">Start by creating your first participation record.</p>
+                            <a href="{{ path('app_participation_new') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-1"></i>Create First Participation
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
 {% endblock %}

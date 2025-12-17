@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="fr">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<title>Participation #{{ participation.id }} - BackToGreen</title>
+	<style>
+		body { font-family: Arial, Helvetica, sans-serif; color: #222; margin: 0; padding: 20px; background: #fff; }
+		.container { max-width: 800px; margin: 0 auto; }
+		.header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+		h1 { font-size:20px; margin:0; }
+		.meta { text-align:right; font-size:12px; color:#555; }
+		.card { border: 1px solid #e0e0e0; padding:18px; border-radius:6px; background:#fafafa; }
+		.row { display:flex; gap:16px; margin-bottom:8px; }
+		.label { width:180px; font-weight:600; color:#333; }
+		.value { flex:1; color:#111; }
+		.comment { white-space:pre-wrap; background:#fff; padding:10px; border-radius:4px; border:1px solid #eee; }
+		.print-controls { position:fixed; top:12px; right:12px; display:flex; gap:8px; z-index:9999; }
+		.print-controls button { background:#2b7a0b; color:#fff; border:0; padding:8px 12px; border-radius:4px; cursor:pointer; }
+		.print-controls .close-btn { background:#666; }
+		@media print { .print-controls { display:none } body { margin:0 } }
+	</style>
+</head>
+<body>
+	<div class="print-controls">
+		<button id="downloadPdfBtn" title="Télécharger le PDF">
+			<i class="fas fa-download"></i> Télécharger PDF
+		</button>
+		<button onclick="window.print()" title="Imprimer ou enregistrer en PDF">
+			<i class="fas fa-print"></i> Imprimer / PDF
+		</button>
+		<button class="close-btn" onclick="window.close()" title="Fermer la fenêtre">
+			<i class="fas fa-times"></i> Fermer
+		</button>
+	</div>
+
+	<div class="container document-wrapper">
+		<div class="ticket">
+			<div class="ticket-left">
+				<div class="event-title">{{ participation.idEvenement ? participation.idEvenement.titre : 'Événement' }}</div>
+				<div class="event-meta">
+					<div><strong>Date :</strong> {{ participation.idEvenement and participation.idEvenement.dateDebut ? participation.idEvenement.dateDebut|date('d M Y') : (participation.dateInscription ? participation.dateInscription|date('d M Y') : '—') }}</div>
+					<div><strong>Heure :</strong> {{ participation.idEvenement and participation.idEvenement.dateDebut ? participation.idEvenement.dateDebut|date('H:i') : (participation.dateInscription ? participation.dateInscription|date('H:i') : '—') }}</div>
+					<div><strong>Lieu :</strong> {{ participation.idEvenement ? participation.idEvenement.lieu : '—' }}</div>
+				</div>
+
+				<div class="divider"></div>
+
+				<div class="holder">
+					<div class="holder-label">Nom</div>
+					<div class="holder-value">{{ participation.idUser ? ((participation.idUser.prenom ?: '') ~ ' ' ~ (participation.idUser.nom ?: '')) : '—' }}</div>
+				</div>
+
+				<div class="holder">
+					<div class="holder-label">Email</div>
+					<div class="holder-value">{{ participation.idUser ? participation.idUser.email : '—' }}</div>
+				</div>
+
+				<div class="holder">
+					<div class="holder-label">Statut</div>
+					<div class="holder-value status">{{ participation.statut ? participation.statut.label() : '—' }}</div>
+				</div>
+
+				{% if participation.commentaire %}
+				<div class="holder comment-block">
+					<div class="holder-label">Note</div>
+					<div class="holder-value">{{ participation.commentaire }}</div>
+				</div>
+				{% endif %}
+			</div>
+
+			<div class="ticket-right">
+				<div class="ticket-meta">
+					<div class="ticket-id">#{{ participation.id }}</div>
+					<div class="generated">Généré le {{ "now"|date('d/m/Y H:i') }}</div>
+				</div>
+
+				<div class="qr" id="qrContainer"></div>
+				
+				<div style="margin-top: 10px; text-align: center; font-size: 11px; color: #555; font-weight: 600;">
+					{{ participation.idEvenement ? participation.idEvenement.titre : 'Événement' }}
+				</div>
+
+				<div class="barcode"> 
+					<svg width="100%" height="40" xmlns="http://www.w3.org/2000/svg">
+						<rect width="100%" height="40" fill="#f3f3f3" />
+					</svg>
+				</div>
+
+				<div class="instructions">Présentez ce ticket à l'entrée. Ce document peut être imprimé ou téléchargé depuis le bouton PDF.</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- html2canvas and jsPDF for client-side PDF generation -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script>
+		async function downloadPdf() {
+			const { jsPDF } = window.jspdf;
+			const element = document.querySelector('.document-wrapper');
+			if (!element) return alert('Contenu introuvable pour la génération du PDF.');
+
+			// Render the element to a canvas
+			const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+			const imgData = canvas.toDataURL('image/png');
+
+			// Create PDF (A4)
+			const pdf = new jsPDF('p', 'mm', 'a4');
+			const pageWidth = pdf.internal.pageSize.getWidth();
+			const pageHeight = pdf.internal.pageSize.getHeight();
+
+			// Convert canvas size to mm for PDF
+			const imgProps = { width: canvas.width, height: canvas.height };
+			const imgWidth = pageWidth;
+			const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+			let heightLeft = imgHeight;
+			let position = 0;
+
+			pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+			heightLeft -= pageHeight;
+
+			while (heightLeft > 0) {
+				position = heightLeft - imgHeight;
+				pdf.addPage();
+				pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+				heightLeft -= pageHeight;
+			}
+
+			const filename = 'participation-{{ participation.id }}.pdf';
+			pdf.save(filename);
+		}
+
+		document.addEventListener('DOMContentLoaded', function() {
+			const btn = document.getElementById('downloadPdfBtn');
+			if (btn) btn.addEventListener('click', downloadPdf);
+		});
+		// generate QR code with event title only
+		try {
+			const qrContainer = document.getElementById('qrContainer');
+			if (qrContainer && typeof QRCode !== 'undefined') {
+				const eventTitle = {{ (participation.idEvenement ? participation.idEvenement.titre : 'Événement')|json_encode|raw }};
+				
+				// clear container
+				qrContainer.innerHTML = '';
+				new QRCode(qrContainer, { 
+					text: eventTitle, 
+					width: 160, 
+					height: 160
+				});
+			}
+		} catch (e) {
+			console.error('QR generation failed', e);
+		}
+	</script>
+</body>
+</html>
+
