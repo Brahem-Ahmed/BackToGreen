@@ -54,11 +54,18 @@ class User
     #[ORM\OneToMany(targetEntity: Avis::class, mappedBy: 'idUser')]
     private Collection $avis;
 
+    /**
+     * @var Collection<int, MembreGroupe>
+     */
+    #[ORM\OneToMany(targetEntity: MembreGroupe::class, mappedBy: 'idUser')]
+    private Collection $membreGroupes;
+
     public function __construct()
     {
         $this->collecteDechets = new ArrayCollection();
         $this->reclamations = new ArrayCollection();
         $this->avis = new ArrayCollection();
+        $this->membreGroupes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -234,6 +241,36 @@ class User
             // set the owning side to null (unless already changed)
             if ($avi->getIdUser() === $this) {
                 $avi->setIdUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, MembreGroupe>
+     */
+    public function getMembreGroupes(): Collection
+    {
+        return $this->membreGroupes;
+    }
+
+    public function addMembreGroupe(MembreGroupe $membreGroupe): static
+    {
+        if (!$this->membreGroupes->contains($membreGroupe)) {
+            $this->membreGroupes->add($membreGroupe);
+            $membreGroupe->setIdUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMembreGroupe(MembreGroupe $membreGroupe): static
+    {
+        if ($this->membreGroupes->removeElement($membreGroupe)) {
+            // set the owning side to null (unless already changed)
+            if ($membreGroupe->getIdUser() === $this) {
+                $membreGroupe->setIdUser(null);
             }
         }
 

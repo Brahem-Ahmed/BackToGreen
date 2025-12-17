@@ -98,4 +98,12 @@
             <script src="js/datatables-simple-demo.js"></script>
         {% endblock %}
     </body>
+    {% for label, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="alert alert-{{ label }} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-4" style="z-index: 9999;" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+{% endfor %}
 </html>

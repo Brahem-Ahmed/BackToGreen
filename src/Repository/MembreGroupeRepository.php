@@ -16,6 +16,50 @@ class MembreGroupeRepository extends ServiceEntityRepository
         parent::__construct($registry, MembreGroupe::class);
     }
 
+    /**
+     * Find all pending membership requests (status = EN_ATTENTE)
+     * @return MembreGroupe[] Returns pending membership requests ordered by date
+     */
+    public function findPending(): array
+    {
+        return $this->createQueryBuilder('m')
+            ->andWhere('m.statut = :status')
+            ->setParameter('status', 'EN_ATTENTE')
+            ->orderBy('m.dateAdhesion', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Find pending requests for a specific group
+     * @return MembreGroupe[]
+     
+     */
+   public function findAllValid(): array
+{
+    return $this->createQueryBuilder('mg')
+        ->leftJoin('mg.idUser', 'u')
+        ->leftJoin('mg.idGroupe', 'g')
+        ->addSelect('PARTIAL u.{id, email, prenom, nom}')  // Charge seulement les champs nécessaires
+        ->addSelect('PARTIAL g.{id, nom, nombreMembres}')
+        ->andWhere('mg.statut != :pending')
+        ->setParameter('pending', 'EN_ATTENTE')
+        ->orderBy('mg.dateAdhesion', 'DESC')
+        ->getQuery()
+        ->getResult();
+}
+    public function findPendingByGroupe($idGroupe): array
+    {
+        return $this->createQueryBuilder('m')
+            ->andWhere('m.statut = :status')
+            ->andWhere('m.idGroupe = :groupe')
+            ->setParameter('status', 'EN_ATTENTE')
+            ->setParameter('groupe', $idGroupe)
+            ->orderBy('m.dateAdhesion', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
 //    /**
 //     * @return MembreGroupe[] Returns an array of MembreGroupe objects
 //     */

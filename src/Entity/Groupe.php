@@ -6,6 +6,8 @@ use App\Repository\GroupeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity(repositoryClass: GroupeRepository::class)]
 class Groupe
@@ -16,22 +18,52 @@ class Groupe
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "Le nom du groupe est obligatoire.")]
+    #[Assert\Length(
+        min: 2,
+        max: 50,
+        minMessage: "Le nom doit contenir au moins {{ limit }} caractères.",
+        maxMessage: "Le nom ne peut pas dépasser {{ limit }} caractères."
+    )]
+    #[Assert\Regex(
+        pattern: "/^[a-zA-Z0-9\s\-_]+$/",
+        message: "Le nom ne peut contenir que des lettres, chiffres, espaces, tirets et underscores."
+    )]
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "La description est obligatoire.")]
+    #[Assert\Length(
+        min: 10,
+        max: 255,
+        minMessage: "La description doit contenir au moins {{ limit }} caractères.",
+        maxMessage: "La description ne peut pas dépasser {{ limit }} caractères."
+    )]
     private ?string $description = null;
 
     #[ORM\Column]
     private ?\DateTime $dateCreation = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: "Le nombre de membres est obligatoire.")]
+    #[Assert\Range(
+        min: 1,
+        max: 6,
+        notInRangeMessage: "Le nombre de membres doit être entre {{ min }} et {{ max }}."
+    )]
+    #[Assert\PositiveOrZero(message: "Le nombre de membres ne peut pas être négatif.")]
     private ?int $nombreMembres = null;
-
+    
     #[ORM\ManyToOne(inversedBy: 'groupes')]
+    #[ORM\JoinColumn(nullable: true)]
     private ?User $idCreateur = null;
 
+    #[ORM\ManyToOne(inversedBy: 'groupes')]
+    #[ORM\JoinColumn(name: 'id_evenement', referencedColumnName: 'id', nullable: true)]
+    private ?EvenementEcologique $evenement = null;
+
     /**
-     * @var Collection<int, MembreGroupe>
+     * @return Collection<int, MembreGroupe>
      */
     #[ORM\OneToMany(targetEntity: MembreGroupe::class, mappedBy: 'idGroupe')]
     private Collection $membreGroupes;
@@ -94,14 +126,26 @@ class Groupe
         return $this;
     }
 
-    public function getIdCreateur(): ?user
+    public function getIdCreateur(): ?User
     {
         return $this->idCreateur;
     }
 
-    public function setIdCreateur(?user $idCreateur): static
+    public function setIdCreateur(?User $idCreateur): static
     {
         $this->idCreateur = $idCreateur;
+
+        return $this;
+    }
+
+    public function getEvenement(): ?EvenementEcologique
+    {
+        return $this->evenement;
+    }
+
+    public function setEvenement(?EvenementEcologique $evenement): static
+    {
+        $this->evenement = $evenement;
 
         return $this;
     }
@@ -113,7 +157,13 @@ class Groupe
     {
         return $this->membreGroupes;
     }
-
+public function getStatus(): string
+{
+    if ($this->isFull()) {
+        return 'Plein';
+    }
+    return 'Ouvert';
+}
     public function addMembreGroupe(MembreGroupe $membreGroupe): static
     {
         if (!$this->membreGroupes->contains($membreGroupe)) {
@@ -134,5 +184,24 @@ class Groupe
         }
 
         return $this;
+    }
+
+    public function getActiveMembersCount(): int
+    {
+        return $this->membreGroupes->filter(fn(MembreGroupe $m) => $m->getStatut() === StatutMembre::MEMBRE_ACTIF)->count();
+    }
+
+    public function isFull(): bool
+    {
+        return $this->nombreMembres !== null && $this->getActiveMembersCount() >= $this->nombreMembres;
+    }
+
+    public function getAvailableSlots(): ?int
+    {
+        if ($this->nombreMembres === null) {
+            return null;
+        }
+
+        return max(0, $this->nombreMembres - $this->getActiveMembersCount());
     }
 }

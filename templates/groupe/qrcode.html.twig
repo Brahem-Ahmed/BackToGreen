@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}QR Code - {{ groupe.nom }}{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow-lg">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">QR Code - {{ groupe.nom }}</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- QR Code Simple (lien vers groupe) -->
+                        <div class="col-md-6 text-center mb-4">
+                            <h6 class="mb-3">QR Code - Lien vers le groupe</h6>
+                            <img src="{{ qrCodeBase64 }}" alt="QR Code" class="img-fluid border rounded" style="max-width: 300px;">
+                            <p class="text-muted small mt-2">Scannez pour accéder au groupe</p>
+                        </div>
+
+                        <!-- QR Code Info (données détaillées) -->
+                        <div class="col-md-6 text-center mb-4">
+                            <h6 class="mb-3">QR Code - Informations complètes</h6>
+                            <img src="{{ qrCodeInfo }}" alt="QR Code Info" class="img-fluid border rounded" style="max-width: 300px;">
+                            <p class="text-muted small mt-2">Contient les détails du groupe</p>
+                        </div>
+                    </div>
+
+                    <!-- Informations du groupe -->
+                    <div class="mt-4 pt-3 border-top">
+                        <h5 class="mb-3">Informations du groupe</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Nom:</strong> {{ groupe.nom }}</p>
+                                <p><strong>Description:</strong> {{ groupe.description }}</p>
+                                <p><strong>Créé le:</strong> {{ groupe.dateCreation|date('d/m/Y') }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Capacité:</strong> {{ groupe.activeMembersCount }} / {{ groupe.nombreMembres }} membres</p>
+                                <p><strong>Créé par:</strong> {{ groupe.idCreateur.nom }} {{ groupe.idCreateur.prenom }}</p>
+                                {% if groupe.evenement %}
+                                    <p><strong>Événement:</strong> {{ groupe.evenement.titre }}</p>
+                                {% else %}
+                                    <p><strong>Événement:</strong> <span class="badge bg-secondary">Non assigné</span></p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="mt-4 pt-3 border-top">
+                        <a href="{{ path('app_groupe_show', {'id': groupe.id}) }}" class="btn btn-primary">
+                            <i class="bi bi-eye"></i> Voir le groupe
+                        </a>
+                        <a href="{{ path('app_groupe_edit', {'id': groupe.id}) }}" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i> Modifier
+                        </a>
+                        <a href="{{ path('app_groupe_index') }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Retour
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Icons CSS (for icons) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<style>
+    .card {
+        border-radius: 10px;
+    }
+    .card-header {
+        border-radius: 10px 10px 0 0;
+    }
+    img {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    img:hover {
+        transform: scale(1.05);
+    }
+</style>
+{% endblock %}

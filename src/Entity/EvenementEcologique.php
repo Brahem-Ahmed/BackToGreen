@@ -7,6 +7,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use DateTime;
+use DateTimeInterface;
 
 #[ORM\Entity(repositoryClass: EvenementEcologiqueRepository::class)]
 class EvenementEcologique
@@ -19,40 +21,38 @@ class EvenementEcologique
     #[ORM\Column(length: 255)]
     private ?string $titre = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
-    #[ORM\Column]
-    private ?string $dateDebut = null;
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?DateTimeInterface $dateDebut = null;
 
-    #[ORM\Column]
-    private ?string $dateFin = null;
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?DateTimeInterface $dateFin = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $lieu = null;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?int $capaciteMax = null;
 
-    
+    #[ORM\Column(type: 'string', enumType: CategorieEvenement::class, nullable: true)]
+    private ?CategorieEvenement $categorie = null;
 
-    #[ORM\Column(type: 'string', enumType: CategorieEvenement::class)]
-    private array $categorie = [];
-
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?User $idOrganisateur = null;
 
-    /**
-     * @var Collection<int, Participation>
-     */
-    #[ORM\OneToMany(targetEntity: Participation::class, mappedBy: 'idEvenement')]
+    #[ORM\ManyToOne(targetEntity: Groupe::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?Groupe $groupe = null;
+
+    /** @var Collection<int, Participation> */
+    #[ORM\OneToMany(mappedBy: 'idEvenement', targetEntity: Participation::class)]
     private Collection $participations;
 
-    /**
-     * @var Collection<int, Avis>
-     */
-    #[ORM\OneToMany(targetEntity: Avis::class, mappedBy: 'idEvenement')]
+    /** @var Collection<int, Avis> */
+    #[ORM\OneToMany(mappedBy: 'idEvenement', targetEntity: Avis::class)]
     private Collection $avis;
 
     public function __construct()
@@ -61,6 +61,7 @@ class EvenementEcologique
         $this->avis = new ArrayCollection();
     }
 
+    // ───── GETTERS & SETTERS ─────
 
     public function getId(): ?int
     {
@@ -72,10 +73,9 @@ class EvenementEcologique
         return $this->titre;
     }
 
-    public function setTitre(string $titre): static
+    public function setTitre(string $titre): self
     {
         $this->titre = $titre;
-
         return $this;
     }
 
@@ -84,34 +84,39 @@ class EvenementEcologique
         return $this->description;
     }
 
-    public function setDescription(string $description): static
+    public function setDescription(string $description): self
     {
         $this->description = $description;
-
         return $this;
     }
 
-    public function getDateDebut(): ?\DateTime
+    public function getDateDebut(): ?DateTimeInterface
     {
         return $this->dateDebut;
     }
 
-    public function setDateDebut(\DateTime $dateDebut): static
+    public function setDateDebut(\DateTimeInterface|string|null $dateDebut): self
     {
-        $this->dateDebut = $dateDebut;
-
+        if (is_string($dateDebut)) {
+            $this->dateDebut = new \DateTime($dateDebut);
+        } else {
+            $this->dateDebut = $dateDebut;
+        }
         return $this;
     }
 
-    public function getDateFin(): ?\DateTime
+    public function getDateFin(): ?DateTimeInterface
     {
         return $this->dateFin;
     }
 
-    public function setDateFin(\DateTime $dateFin): static
+    public function setDateFin(\DateTimeInterface|string|null $dateFin): self
     {
-        $this->dateFin = $dateFin;
-
+        if (is_string($dateFin)) {
+            $this->dateFin = new \DateTime($dateFin);
+        } else {
+            $this->dateFin = $dateFin;
+        }
         return $this;
     }
 
@@ -120,10 +125,9 @@ class EvenementEcologique
         return $this->lieu;
     }
 
-    public function setLieu(string $lieu): static
+    public function setLieu(?string $lieu): self
     {
         $this->lieu = $lieu;
-
         return $this;
     }
 
@@ -132,28 +136,20 @@ class EvenementEcologique
         return $this->capaciteMax;
     }
 
-    public function setCapaciteMax(int $capaciteMax): static
+    public function setCapaciteMax(?int $capaciteMax): self
     {
         $this->capaciteMax = $capaciteMax;
-
         return $this;
     }
 
-    
-
- 
-    /**
-     * @return CategorieEvenement[]
-     */
-    public function getCategorie(): array
+    public function getCategorie(): ?CategorieEvenement
     {
         return $this->categorie;
     }
 
-    public function setCategorie(array $categorie): static
+    public function setCategorie(?CategorieEvenement $categorie): self
     {
         $this->categorie = $categorie;
-
         return $this;
     }
 
@@ -162,74 +158,70 @@ class EvenementEcologique
         return $this->idOrganisateur;
     }
 
-    public function setIdOrganisateur(?User $idOrganisateur): static
+    public function setIdOrganisateur(?User $idOrganisateur): self
     {
         $this->idOrganisateur = $idOrganisateur;
-
         return $this;
     }
 
-    /**
-     * @return Collection<int, Participation>
-     */
+    public function getGroupe(): ?Groupe
+    {
+        return $this->groupe;
+    }
+
+    public function setGroupe(?Groupe $groupe): self
+    {
+        $this->groupe = $groupe;
+        return $this;
+    }
+
+    /** @return Collection<int, Participation> */
     public function getParticipations(): Collection
     {
         return $this->participations;
     }
 
-    public function addParticipation(Participation $participation): static
+    public function addParticipation(Participation $participation): self
     {
         if (!$this->participations->contains($participation)) {
             $this->participations->add($participation);
             $participation->setIdEvenement($this);
         }
-
         return $this;
     }
 
-    public function removeParticipation(Participation $participation): static
+    public function removeParticipation(Participation $participation): self
     {
         if ($this->participations->removeElement($participation)) {
-            // set the owning side to null (unless already changed)
             if ($participation->getIdEvenement() === $this) {
                 $participation->setIdEvenement(null);
             }
         }
-
         return $this;
     }
 
-    /**
-     * @return Collection<int, Avis>
-     */
+    /** @return Collection<int, Avis> */
     public function getAvis(): Collection
     {
         return $this->avis;
     }
 
-    public function addAvi(Avis $avi): static
+    public function addAvi(Avis $avi): self
     {
         if (!$this->avis->contains($avi)) {
             $this->avis->add($avi);
             $avi->setIdEvenement($this);
         }
-
         return $this;
     }
 
-    public function removeAvi(Avis $avi): static
+    public function removeAvi(Avis $avi): self
     {
         if ($this->avis->removeElement($avi)) {
-            // set the owning side to null (unless already changed)
             if ($avi->getIdEvenement() === $this) {
                 $avi->setIdEvenement(null);
             }
         }
-
         return $this;
     }
-
-   
-
-   
 }
