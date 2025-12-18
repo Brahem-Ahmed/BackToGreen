@@ -291,4 +291,9 @@ class User
 
         return $this;
     }
+
+    public function __toString(): string
+    {
+        return trim(sprintf('%s %s', $this->prenom ?? '', $this->nom ?? '')) ?: (string) $this->id;
+    }
 }

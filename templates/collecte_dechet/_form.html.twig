@@ -1,4 +1,363 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': true, 'id': 'collecteDechetForm'}}) }}
+
+<div class="alert alert-info mb-4" id="validationInfo">
+    <i class="fas fa-info-circle me-2"></i>
+    <strong>Form Validation:</strong> All fields marked with <span class="text-danger">*</span> are required. 
+    Please ensure all information is accurate before submitting.
+</div>
+
+<!-- Weather Display Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div id="weatherContainer" class="card border-0 shadow-sm" style="display: none;">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-cloud-sun me-2"></i>Weather Forecast
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="weatherContent" class="text-center">
+                    <div class="spinner-border text-info" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Fetching weather data...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Collection Details Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h5 class="text-primary border-bottom pb-2 mb-3">
+            <i class="fas fa-calendar-check me-2"></i>Collection Details
+        </h5>
+    </div>
+    <div class="col-md-6 mb-3">
+        {{ form_label(form.dateCollecte, null, {'label_attr': {'class': 'form-label required'}}) }}
+        <span class="text-danger">*</span>
+        {{ form_widget(form.dateCollecte) }}
+        {{ form_errors(form.dateCollecte) }}
+        <div class="invalid-feedback">Please provide a valid date and time.</div>
+        {% if form.dateCollecte.vars.help %}
+            <div class="form-text">{{ form.dateCollecte.vars.help }}</div>
+        {% endif %}
+    </div>
+    <div class="col-md-6 mb-3">
+        {{ form_label(form.quantite, null, {'label_attr': {'class': 'form-label required'}}) }}
+        <span class="text-danger">*</span>
+        {{ form_widget(form.quantite) }}
+        {{ form_errors(form.quantite) }}
+        <div class="invalid-feedback">Please provide a valid quantity (positive number).</div>
+        {% if form.quantite.vars.help %}
+            <div class="form-text">{{ form.quantite.vars.help }}</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Waste Information Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h5 class="text-primary border-bottom pb-2 mb-3">
+            <i class="fas fa-trash me-2"></i>Waste Information
+        </h5>
+    </div>
+    <div class="col-md-6 mb-3">
+        {{ form_label(form.typeDechet, null, {'label_attr': {'class': 'form-label required'}}) }}
+        <span class="text-danger">*</span>
+        {{ form_widget(form.typeDechet) }}
+        {{ form_errors(form.typeDechet) }}
+        <div class="invalid-feedback">Please select a waste type.</div>
+        {% if form.typeDechet.vars.help %}
+            <div class="form-text">{{ form.typeDechet.vars.help }}</div>
+        {% endif %}
+    </div>
+    <div class="col-md-6 mb-3">
+        {{ form_label(form.statut, null, {'label_attr': {'class': 'form-label required'}}) }}
+        <span class="text-danger">*</span>
+        {{ form_widget(form.statut) }}
+        {{ form_errors(form.statut) }}
+        <div class="invalid-feedback">Please select a collection status.</div>
+        {% if form.statut.vars.help %}
+            <div class="form-text">{{ form.statut.vars.help }}</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Related Information Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h5 class="text-primary border-bottom pb-2 mb-3">
+            <i class="fas fa-link me-2"></i>Related Information
+        </h5>
+    </div>
+    <div class="col-md-6 mb-3">
+        {{ form_label(form.idZone, null, {'label_attr': {'class': 'form-label required'}}) }}
+        <span class="text-danger">*</span>
+        {{ form_widget(form.idZone) }}
+        {{ form_errors(form.idZone) }}
+        <div class="invalid-feedback">Please select a collection zone.</div>
+        {% if form.idZone.vars.help %}
+            <div class="form-text">{{ form.idZone.vars.help }}</div>
+        {% endif %}
+    </div>
+    
+    <!-- Hidden data for zones coordinates -->
+    <script type="application/json" id="zonesCoordinatesData">{{ zones_data|json_encode|raw }}</script>
+    <div class="col-md-6 mb-3">
+        {{ form_label(form.idUser, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.idUser) }}
+        {{ form_errors(form.idUser) }}
+        <div class="invalid-feedback">Please select a collector user.</div>
+        {% if form.idUser.vars.help %}
+            <div class="form-text">{{ form.idUser.vars.help }}</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Hidden Fields (if any) -->
+{{ form_rest(form) }}
+
+<!-- Action Buttons -->
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="{{ path('app_collecte_dechet_index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-1"></i>{{ button_label|default('Save Collection') }}
+            </button>
+        </div>
+    </div>
+</div>
+
 {{ form_end(form) }}
+
+{# Form validation is handled by assets/js/scripts.js #}
+
+<!-- Weather API Integration -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Configuration
+    // Client calls server proxy at `app_api_weather`. Server proxy calls OpenWeather OneCall v3 overview.
+    
+    // Get elements
+    const dateInput = document.querySelector('input[name*="dateCollecte"]');
+    const zoneSelect = document.querySelector('select[name*="idZone"]');
+    const weatherContainer = document.getElementById('weatherContainer');
+    const weatherContent = document.getElementById('weatherContent');
+    
+    // Zone coordinates mapping
+    let zoneCoordinates = {};
+    
+    // Initialize zone coordinates from embedded JSON data
+    function loadZoneCoordinates() {
+        try {
+            const dataElement = document.getElementById('zonesCoordinatesData');
+            if (dataElement) {
+                const zones = JSON.parse(dataElement.textContent);
+                zones.forEach(zone => {
+                    zoneCoordinates[zone.id] = {
+                        lat: zone.latitude,
+                        lon: zone.longitude,
+                        name: zone.nom
+                    };
+                });
+            }
+            console.log('Loaded zoneCoordinates:', zoneCoordinates);
+        } catch (error) {
+            console.warn('Unable to load zone coordinates from embedded data:', error);
+        }
+    }
+    
+    // Fetch weather data
+    async function fetchWeather() {
+        const selectedZoneId = zoneSelect.value;
+        const selectedDate = dateInput.value;
+        console.log('fetchWeather called', { selectedZoneId, selectedDate });
+        
+        // Check if both zone and date are selected
+        if (!selectedZoneId || !selectedDate) {
+            weatherContainer.style.display = 'none';
+            return;
+        }
+        
+        // Get coordinates
+        const coordinates = zoneCoordinates[selectedZoneId];
+        if (!coordinates) {
+            weatherContainer.style.display = 'none';
+            return;
+        }
+        
+        try {
+            console.log('Using coordinates for zone:', zoneCoordinates[selectedZoneId]);
+            weatherContainer.style.display = 'block';
+            weatherContent.innerHTML = '<div class="spinner-border text-info" role="status"><span class="visually-hidden">Loading...</span></div><p class="mt-2 text-muted">Fetching weather data...</p>';
+            
+            // Fetch weather data via server proxy; Open-Meteo is free and doesn't need a date param
+            const url = '{{ path("app_api_weather") }}' + '?lat=' + encodeURIComponent(coordinates.lat) + '&lon=' + encodeURIComponent(coordinates.lon) + '&units=metric';
+            console.log('Requesting weather via proxy URL:', url);
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                const bodyText = await response.text();
+                console.error('Weather proxy response not OK', response.status, bodyText);
+                try {
+                    const err = JSON.parse(bodyText);
+                    const serverMsg = err.error || err.message || bodyText;
+                    weatherContent.innerHTML = `<div class="alert alert-warning mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Unable to fetch weather data: ${serverMsg}</div>`;
+                } catch (parseErr) {
+                    weatherContent.innerHTML = `<div class="alert alert-warning mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Unable to fetch weather data (status ${response.status})</div>`;
+                }
+                return;
+            }
+
+            const data = await response.json();
+            console.log('Weather API returned data:', data);
+
+            // Parse AccuWeather response
+            if (data.current) {
+                displayWeatherAccuWeather(data, coordinates.name);
+            } else {
+                // Fallback: pretty-print JSON
+                weatherContent.innerHTML = '<pre class="small text-start">' + JSON.stringify(data, null, 2) + '</pre>';
+            }
+        } catch (error) {
+            console.error('Error fetching weather:', error);
+            weatherContent.innerHTML = `<div class="alert alert-warning mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Unable to fetch weather data: ${error.message}</div>`;
+        }
+    }
+    
+    // Display weather information from AccuWeather
+    function displayWeatherAccuWeather(data, locationName) {
+        const current = data.current || {};
+
+        // Temperature (AccuWeather provides nested Metric/Imperial objects)
+        const tempValue = current.Temperature?.Metric?.Value ?? current.Temperature?.Value ?? 0;
+        const tempUnit = current.Temperature?.Metric?.Unit ?? current.Temperature?.Unit ?? 'C';
+        const temp = isNaN(tempValue) ? 0 : Math.round(tempValue);
+
+        // Humidity
+        const humidity = (typeof current.RelativeHumidity === 'number') ? current.RelativeHumidity : 0;
+
+        // Pressure
+        const pressureObj = current.Pressure || {};
+        const pressureValue = pressureObj.Metric?.Value ?? pressureObj.Value ?? 0;
+        const pressureUnit = pressureObj.Metric?.Unit ?? pressureObj.Unit ?? 'mb';
+
+        // Wind
+        const windSpeedValue = current.Wind?.Speed?.Metric?.Value ?? current.Wind?.Speed?.Value ?? 0;
+        const windUnit = current.Wind?.Speed?.Metric?.Unit ?? current.Wind?.Speed?.Unit ?? 'km/h';
+        const windSpeed = isNaN(windSpeedValue) ? 0 : Math.round(windSpeedValue);
+
+        const weatherText = current.WeatherText || 'Unknown';
+        const isDayTime = current.IsDayTime !== false;
+
+        // Use weather icon based on AccuWeather conditions (map to local assets)
+        const icon = getAccuWeatherIcon(current.WeatherIcon, isDayTime, weatherText);
+
+        // Resolve location label (use location returned from proxy if available)
+        const locationInfo = data.location || {};
+        const cityParts = [];
+        if (locationInfo.LocalizedName) cityParts.push(locationInfo.LocalizedName);
+        if (locationInfo.AdministrativeArea?.LocalizedName) cityParts.push(locationInfo.AdministrativeArea.LocalizedName);
+        if (locationInfo.Country?.LocalizedName) cityParts.push(locationInfo.Country.LocalizedName);
+        const cityLabel = cityParts.length ? cityParts.join(', ') : (locationName || '');
+        
+        // Get today's date
+        const date = new Date().toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        const weatherHTML = `
+            <div class="row">
+                <div class="col-md-6 text-center border-end">
+                    <img src="${icon}" alt="${weatherText}" style="width: 80px; height: 80px;" onerror="this.outerHTML='<i class=&quot;fas fa-cloud-sun fa-3x text-info&quot;></i>'">
+                    <h3 class="mt-2">${temp}°${tempUnit}</h3>
+                    <p class="text-muted mb-1">${weatherText}</p>
+                    <p class="text-muted small mb-0">${cityLabel}</p>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small><i class="fas fa-droplets text-info me-2"></i>Humidity</small>
+                            <strong>${humidity}%</strong>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-info" style="width: ${humidity}%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small><i class="fas fa-wind text-primary me-2"></i>Wind Speed</small>
+                            <strong>${windSpeed} ${windUnit}</strong>
+                        </div>
+                    </div>
+                    <div class="mb-0">
+                        <div class="d-flex justify-content-between">
+                            <small><i class="fas fa-gauge text-secondary me-2"></i>Pressure</small>
+                            <strong>${Math.round(pressureValue || 0)} ${pressureUnit}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3 pt-3 border-top text-center">
+                <small class="text-muted">
+                    <i class="fas fa-clock me-1"></i>
+                    ${date}
+                </small>
+            </div>
+        `;
+        
+        weatherContent.innerHTML = weatherHTML;
+    }
+    
+    // Convert AccuWeather icon code to AccuWeather CDN URL
+    function getAccuWeatherIcon(iconCode, isDayTime, weatherText) {
+        // Prefer mapping by weather text to local asset images in `assets/images`
+        const text = (weatherText || '').toLowerCase();
+
+        // Choose local file name based on keywords
+        let file = 'icons8-cloud-50.png';
+
+        if (/snow/.test(text)) {
+            file = 'icons8-snow-50.png';
+        } else if (/sleet|ice/.test(text)) {
+            file = 'icons8-snow-50.png';
+        } else if (/thunder|storm|lighting|lightning/.test(text)) {
+            file = isDayTime ? 'icons8-cloud-lightning-50.png' : 'icons8-stormy-night-50.png';
+        } else if (/heavy rain|heavy shower|downpour/.test(text)) {
+            file = 'icons8-heavy-rain-50.png';
+        } else if (/light rain|light drizzle|drizzle/.test(text)) {
+            file = 'icons8-light-rain-50.png';
+        } else if (/rain/.test(text)) {
+            file = 'icons8-rain-50.png';
+        } else if (/partly|mostly/.test(text) && /cloud|cloudy/.test(text)) {
+            file = isDayTime ? 'icons8-partly-cloudy-day-50.png' : 'icons8-night-50.png';
+        } else if (/cloud|cloudy/.test(text)) {
+            file = 'icons8-clouds-50.png';
+        } else if (/clear|sunny/.test(text)) {
+            file = isDayTime ? 'icons8-partly-cloudy-day-50.png' : 'icons8-night-50.png';
+        } else if (/wind/.test(text)) {
+            file = isDayTime ? 'icons8-cloud-50.png' : 'icons8-night-wind-50.png';
+        }
+
+        // Return local asset path. Adjust prefix if your build pipeline places assets elsewhere.
+        return '/assets/images/' + file;
+    }
+    
+    // Event listeners
+    dateInput.addEventListener('change', fetchWeather);
+    zoneSelect.addEventListener('change', fetchWeather);
+    
+    // Initialize
+    loadZoneCoordinates();
+});
+</script>

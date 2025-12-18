@@ -1,11 +1,12 @@
-<!DOCTYPE html>
+{% extends 'backoffice/layout.html.twig' %}
 
-<title>New CollecteDechet</title>
+{% block title %} New CollecteDechet - BacktoGreen{% endblock %}
 
-{% block body %}
+
+{% block contenu %}
     <h1>Create new CollecteDechet</h1>
 
-    {{ include('collecte_dechet/_form.html.twig') }}
+    {{ include('collecte_dechet/_form.html.twig', {'zones_data': zones_data}) }}
 
     <a href="{{ path('app_collecte_dechet_index') }}">back to list</a>
 {% endblock %}

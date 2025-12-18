@@ -1,0 +1,225 @@
+{% extends 'frontoffice/base.html.twig' %}
+
+{% block title %}Zones de collecte{% endblock %}
+
+{% block body %}
+<div class="search-container">
+    <div class="container py-5">
+        <h1 class="text-white text-center mb-4">Zones de collecte</h1>
+
+        {# Barre de recherche Ajax #}
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-8 col-lg-6">
+                <div class="search-box">
+                    <input 
+                        type="text" 
+                        id="zoneSearch" 
+                        class="form-control form-control-lg" 
+                        placeholder="Rechercher une zone..."
+                        value="{{ search }}"
+                    >
+                    <button id="searchButton" class="btn btn-light btn-lg">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {# Message résultats #}
+        <div id="searchMessage" class="text-center text-white mb-3">
+            {% if search is not empty %}
+                {% if zones|length > 0 %}
+                    {{ zones|length }} résultat(s) pour "{{ search }}"
+                {% else %}
+                    Aucun résultat pour "{{ search }}"
+                {% endif %}
+                <a href="{{ path('front_zone_index') }}" class="text-white text-decoration-underline ms-2">Effacer</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{# Conteneur des zones #}
+<div class="container py-4">
+    <div id="zonesContainer" class="row">
+        {% for zone in zones %}
+            <div class="col-md-4 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h5 class="card-title">{{ zone.nom }}</h5>
+                            <a href="{{ path('front_zone_qr_code', {'id': zone.id}) }}" 
+                               class="btn btn-sm btn-outline-secondary"
+                               title="QR Code">
+                                <i class="fas fa-qrcode"></i>
+                            </a>
+                        </div>
+                        <p class="card-text small mb-1">
+                            <i class="fas fa-map-marker-alt me-2"></i>{{ zone.adresse }}
+                        </p>
+                        <p class="card-text small mb-1">Type: {{ zone.typeDechet.label() }}</p>
+                        <p class="card-text small mb-3">Capacité: {{ zone.capacite }} kg</p>
+                        
+                        <div class="mt-auto d-flex gap-2">
+                            <a href="{{ path('front_zone_show', {'id': zone.id}) }}" 
+                               class="btn btn-sm btn-outline-primary">Voir</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    {% if search is not empty %}
+                        Aucune zone trouvée
+                    {% else %}
+                        Aucune zone disponible
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('zoneSearch');
+    const searchButton = document.getElementById('searchButton');
+    const zonesContainer = document.getElementById('zonesContainer');
+    const searchMessage = document.getElementById('searchMessage');
+    const indexPath = '{{ path('front_zone_index') }}';
+
+    // Fetch modular: retourne la réponse JSON
+    async function fetchZonesAjax(query) {
+        const url = `/front/zone_collecte/search/ajax?q=${encodeURIComponent(query)}`;
+        // Afficher chargement
+        zonesContainer.innerHTML = `
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Chargement...</span>
+                </div>
+                <p class="mt-2">Recherche en cours...</p>
+            </div>
+        `;
+
+        const response = await fetch(url);
+        if (!response.ok) {
+            const err = new Error('Network response was not ok');
+            err.status = response.status;
+            throw err;
+        }
+        return response.json();
+    }
+
+    // Renderer modulaire: met à jour le DOM à partir des données
+    function renderZones(data, query) {
+        zonesContainer.innerHTML = '';
+
+        if (!data || !data.zones || data.zones.length === 0) {
+            zonesContainer.innerHTML = `
+                <div class="col-12">
+                    <div class="alert alert-info text-center">
+                        ${query ? `Aucune zone trouvée pour "${query}"` : 'Aucune zone disponible'}
+                    </div>
+                </div>
+            `;
+        } else {
+            data.zones.forEach(zone => {
+                const zoneCard = `
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <h5 class="card-title">${zone.nom}</h5>
+                                    <a href="${zone.qrCodeUrl}" 
+                                       class="btn btn-sm btn-outline-secondary"
+                                       title="QR Code">
+                                        <i class="fas fa-qrcode"></i>
+                                    </a>
+                                </div>
+                                <p class="card-text small mb-1">
+                                    <i class="fas fa-map-marker-alt me-2"></i>${zone.adresse}
+                                </p>
+                                <p class="card-text small mb-1">Type: ${zone.typeDechet}</p>
+                                <p class="card-text small mb-3">Capacité: ${zone.capacite} kg</p>
+                                
+                                <div class="mt-auto d-flex gap-2">
+                                    <a href="${zone.showUrl}" 
+                                       class="btn btn-sm btn-outline-primary">Voir</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                zonesContainer.innerHTML += zoneCard;
+            });
+        }
+
+        // Mettre à jour le message
+        if (query) {
+            searchMessage.innerHTML = `
+                ${data.count} résultat(s) pour "${query}"
+                <a href="${indexPath}" class="text-white text-decoration-underline ms-2">Effacer</a>
+            `;
+        } else {
+            searchMessage.innerHTML = '';
+        }
+    }
+
+    // Fonction de contrôle: appelle fetch puis render, gère erreurs
+    function doSearch() {
+        const query = searchInput.value.trim();
+        fetchZonesAjax(query)
+            .then(data => renderZones(data, query))
+            .catch(error => {
+                console.error('Recherche Ajax error:', error);
+                zonesContainer.innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-danger text-center">
+                            Erreur lors de la recherche
+                        </div>
+                    </div>
+                `;
+            });
+    }
+
+    // Événements
+    searchButton.addEventListener('click', doSearch);
+
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            doSearch();
+        }
+    });
+
+    // Debounce input
+    let timeout;
+    searchInput.addEventListener('input', function() {
+        clearTimeout(timeout);
+        timeout = setTimeout(doSearch, 800);
+    });
+});
+</script>
+
+<style>
+    .search-container {
+        background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        padding: 40px 0;
+    }
+    .search-box {
+        display: flex;
+        gap: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .search-box input {
+        border: none;
+        border-radius: 8px 0 0 8px !important;
+    }
+    .search-box button {
+        border-radius: 0 8px 8px 0 !important;
+        white-space: nowrap;
+    }
+</style>
+{% endblock %}
