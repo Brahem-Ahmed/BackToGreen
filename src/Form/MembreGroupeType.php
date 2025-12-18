@@ -33,7 +33,7 @@ class MembreGroupeType extends AbstractType
                 'class' => EvenementEcologique::class,
                 'choice_label' => 'titre',
                 'label' => 'Evenement',
-                'placeholder' => 'Sélectionner un evenement',
+                'placeholder' => 'Sélectionner un événement',
                 'attr' => [
                     'class' => 'form-select',
                     'id' => 'evenement-select', // pour le JS
