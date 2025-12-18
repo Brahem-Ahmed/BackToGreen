@@ -6,6 +6,8 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
@@ -16,7 +18,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[UniqueEntity(fields: ['email'], message: 'This email address is already in use.')]
-class User
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -306,6 +308,12 @@ class User
 
     public function getRoles(): array
     {
+        $roles = ['ROLE_USER'];
+        
+        if ($this->role) {
+            $roles[] = $this->role->value;
+        }
+
         // Map RoleUser enum to Symfony roles
         $roles = ['ROLE_USER'];
         
@@ -318,12 +326,14 @@ class User
 
     public function eraseCredentials(): void
     {
+        // Clear temporary sensitive data if any
         // If you store any temporary, sensitive data on the user, clear it here
     }
 
     // PasswordAuthenticatedUserInterface method
     public function getPassword(): string
     {
+        return $this->motDePasse ?? '';
         return $this->motDePasse;
     public function __toString(): string
     {

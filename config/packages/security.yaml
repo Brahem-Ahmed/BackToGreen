@@ -21,6 +21,13 @@ security:
             form_login:
                 login_path: app_login
                 check_path: app_login
+                default_target_path: app_home
+                enable_csrf: true
+            custom_authenticators:
+                - App\Security\OAuthAuthenticator
+            logout:
+                path: app_logout
+                target: app_home
                 default_target_path: app_front_events
                 enable_csrf: true
             logout:

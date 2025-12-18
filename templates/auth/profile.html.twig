@@ -1,0 +1,176 @@
+{% extends 'frontoffice/base.html.twig' %}
+
+{% block title %}My Profile - BacktoGreen{% endblock %}
+
+{% block hero %}
+<div class="container mt-5 mb-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h1 class="text-primary mb-4">
+                <i class="fas fa-user-circle me-2"></i>My Profile
+            </h1>
+
+            <!-- Flash Messages -->
+            {% for type, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-{{ type == 'success' ? 'check-circle' : (type == 'error' ? 'exclamation-triangle' : 'info-circle') }} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+            <!-- Error Messages -->
+            {% if errors is not empty %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Please fix the following errors:</strong>
+                    <ul class="mb-0 mt-2">
+                        {% for error in errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <!-- Profile Information Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>Profile Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{{ path('app_auth_profile') }}">
+                        <input type="hidden" name="action" value="update_profile">
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nom" class="form-label">Last Name</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="nom" 
+                                       name="nom" 
+                                       value="{{ user.nom }}"
+                                       required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="prenom" class="form-label">First Name</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="prenom" 
+                                       name="prenom" 
+                                       value="{{ user.prenom }}"
+                                       required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" 
+                                   class="form-control" 
+                                   id="email" 
+                                   name="email" 
+                                   value="{{ user.email }}"
+                                   required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="telephone" class="form-label">Phone Number</label>
+                            <input type="tel" 
+                                   class="form-control" 
+                                   id="telephone" 
+                                   name="telephone" 
+                                   value="{{ user.telephone }}"
+                                   required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="addresse" class="form-label">Address</label>
+                            <textarea class="form-control" 
+                                      id="addresse" 
+                                      name="addresse" 
+                                      rows="2"
+                                      required>{{ user.addresse }}</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Role</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   value="{{ user.role.label }}" 
+                                   disabled>
+                            <div class="form-text">Your role is managed by administrators</div>
+                        </div>
+
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Update Profile
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Change Password Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lock me-2"></i>Change Password
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{{ path('app_auth_profile') }}">
+                        <input type="hidden" name="action" value="change_password">
+
+                        <div class="mb-3">
+                            <label for="currentPassword" class="form-label">Current Password</label>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="currentPassword" 
+                                   name="currentPassword" 
+                                   required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="newPassword" class="form-label">New Password</label>
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="newPassword" 
+                                       name="newPassword" 
+                                       minlength="8"
+                                       required>
+                                <div class="form-text">Minimum 8 characters</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                                <input type="password" 
+                                       class="form-control" 
+                                       id="confirmPassword" 
+                                       name="confirmPassword" 
+                                       minlength="8"
+                                       required>
+                            </div>
+                        </div>
+
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-warning text-white">
+                                <i class="fas fa-key me-2"></i>Change Password
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Back Button -->
+            <div class="mt-4 text-center">
+                <a href="{{ path('app_home') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
