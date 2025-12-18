@@ -73,10 +73,12 @@ class UserType extends AbstractType
                 'attr' => [
                     'class' => 'form-control',
                     'placeholder' => 'Enter secure password',
-                    'minlength' => 8
+                    'minlength' => 8,
+                    'pattern' => '(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}',
+                    'title' => 'Password must contain at least one lowercase letter, one uppercase letter, and one number'
                 ],
                 'required' => true,
-                'help' => 'Password must be at least 8 characters long'
+                'help' => 'Password must be at least 8 characters long and contain uppercase, lowercase, and numbers'
             ])
             
             // Role Section
