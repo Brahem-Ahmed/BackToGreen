@@ -38,7 +38,24 @@ final class EvenementEcologiqueController extends AbstractController
             'filters' => $criteria,
         ]);
     }
+#[Route('/evenement/{id}/get-groupe', name: 'app_evenement_get_groupe', methods: ['GET'])]
+public function getGroupe(int $id, EvenementEcologiqueRepository $repo): JsonResponse
+{
+    $evenement = $repo->find($id);
 
+    if (!$evenement) {
+        return new JsonResponse(['error' => 'Événement non trouvé'], 404);
+    }
+
+    $groupe = $evenement->getGroupe();
+
+    return new JsonResponse([
+        'groupe' => $groupe ? [
+            'id' => $groupe->getId(),
+            'nom' => $groupe->getNom(),
+        ] : null
+    ]);
+}
     #[Route('/new', name: 'app_evenement_ecologique_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {

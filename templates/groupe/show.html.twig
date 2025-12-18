@@ -1,0 +1,94 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block title %}Groupe Details - BacktoGreen{% endblock %}
+
+{% block contenu %}
+<div class="mb-4 text-center">
+    <span class="badge fs-4 px-4 py-3 {% if groupe.isFull() %}bg-danger{% else %}bg-success{% endif %}">
+        Statut : {{ groupe.getStatus() }}
+        ({{ groupe.getActiveMembersCount() }} membre{{ groupe.getActiveMembersCount() > 1 ? 's' : '' }} actif{{ groupe.getActiveMembersCount() > 1 ? 's' : '' }} / {{ groupe.nombreMembres }} places)
+    </span>
+</div>
+<div class="container px-4 px-lg-5 my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="text-primary">
+                    <i class="fas fa-users me-2"></i>Groupe Details
+                </h1>
+                <a href="{{ path('app_groupe_index') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-1"></i>Back to List
+                </a>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Groupe Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <th class="w-25 text-muted">ID</th>
+                                <td class="fw-semibold">{{ groupe.id }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Nom</th>
+                                <td>{{ groupe.nom }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Description</th>
+                                <td>
+                                    <div class="border-start border-3 border-primary ps-3 py-2 bg-light rounded">
+                                        {{ groupe.description }}
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Date Creation</th>
+                                <td>
+                                    <i class="fas fa-calendar me-1 text-muted"></i>
+                                    {{ groupe.dateCreation ? groupe.dateCreation|date('Y-m-d H:i:s') : 'N/A' }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Nombre Membres</th>
+                                <td>
+                                    <span class="badge bg-info fs-6">
+                                        <i class="fas fa-user-friends me-1"></i>
+                                        {{ groupe.nombreMembres }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <a href="{{ path('app_groupe_edit', {'id': groupe.id}) }}" class="btn btn-primary">
+                        <i class="fas fa-edit me-1"></i>Edit
+                    </a>
+                </div>
+                <div>
+                    {{ include('groupe/_delete_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.table-borderless td,
+.table-borderless th {
+    border: none;
+    padding: 0.75rem 0.5rem;
+}
+.table-borderless tr:not(:last-child) {
+    border-bottom: 1px solid #e9ecef;
+}
+</style>
+{% endblock %}

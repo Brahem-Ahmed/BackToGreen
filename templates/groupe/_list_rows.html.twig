@@ -1,0 +1,39 @@
+{% if groupes|length > 0 %}
+    {% for groupe in groupes %}
+        <tr>
+            <td class="fw-bold">{{ groupe.id }}</td>
+            <td>{{ groupe.nom }}</td>
+            <td>{{ groupe.description }}</td>
+            <td>{{ groupe.dateCreation ? groupe.dateCreation|date('Y-m-d H:i:s') : '' }}</td>
+            <td>
+                <span class="badge bg-info">{{ groupe.nombreMembres }}</span>
+            </td>
+            <td>
+                <div class="btn-group" role="group">
+                    <a href="{{ path('app_groupe_show', {'id': groupe.id}) }}"
+                       class="btn btn-outline-info btn-sm" title="View Details">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    <a href="{{ path('app_groupe_edit', {'id': groupe.id}) }}"
+                       class="btn btn-outline-primary btn-sm" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <button type="button"
+                            class="btn btn-outline-danger btn-sm supprimer-groupe"
+                            data-id="{{ groupe.id }}"
+                            data-nom="{{ groupe.nom|e('html_attr') }}"
+                            title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    {% endfor %}
+{% else %}
+    <tr>
+        <td colspan="6" class="text-center py-4 text-muted">
+            <i class="fas fa-search fa-2x mb-3"></i><br>
+            Aucun groupe trouvé pour cette recherche.
+        </td>
+    </tr>
+{% endif %}

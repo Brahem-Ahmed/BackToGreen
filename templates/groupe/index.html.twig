@@ -1,0 +1,155 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block title %}Group Management - BacktoGreen{% endblock %}
+
+{% block contenu %}
+<main>
+    <div class="container-fluid px-4">
+        <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+            <h1 class="text-primary">
+                <i class="fas fa-users me-2"></i>Group Management
+            </h1>
+            <a href="{{ path('app_groupe_new') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Create New Group
+            </a>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-list me-2"></i>All Groups
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if groupes|length > 0 %}
+                    <!-- Champ de recherche AJAX -->
+                    <div class="mb-4 text-end">
+                        <input type="text" id="searchInput" class="form-control d-inline-block" style="width: 350px;"
+                               placeholder="Rechercher par nom ou description..." autocomplete="off">
+                    </div>
+
+                    <!-- Tableau -->
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-center">ID</th>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th>Creation Date</th>
+                                    <th class="text-center">Members</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="groupsBody">
+                                {% for groupe in groupes %}
+                                    <tr>
+                                        <td class="text-center fw-bold">{{ groupe.id }}</td>
+                                        <td>{{ groupe.nom }}</td>
+                                        <td>{{ groupe.description|length > 80 ? groupe.description|slice(0, 80) ~ '...' : groupe.description }}</td>
+                                        <td>{{ groupe.dateCreation ? groupe.dateCreation|date('d/m/Y') : '' }}</td>
+                                        <td class="text-center">
+                                            <!-- LE BADGE QUE TU AS DEMANDÉ -->
+                                            <span class="badge {% if groupe.isFull() %}bg-danger{% else %}bg-success{% endif %} fs-6 px-3 py-2">
+                                                {% if groupe.isFull() %}
+                                                    Plein
+                                                {% else %}
+                                                    Ouvert
+                                                {% endif %}
+                                                ({{ groupe.getActiveMembersCount() }}/{{ groupe.nombreMembres }})
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ path('app_groupe_show', {'id': groupe.id}) }}"
+                                                   class="btn btn-outline-info btn-sm" title="Voir">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{{ path('app_groupe_edit', {'id': groupe.id}) }}"
+                                                   class="btn btn-outline-primary btn-sm" title="Modifier">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button"
+                                                        class="btn btn-outline-danger btn-sm"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal{{ groupe.id }}"
+                                                        title="Supprimer">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+
+                                            <!-- Modal suppression -->
+                                            <div class="modal fade" id="deleteModal{{ groupe.id }}" tabindex="-1">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Confirmer la suppression</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Êtes-vous sûr de vouloir supprimer le groupe <strong>{{ groupe.nom }}</strong> ?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                            <form method="post" action="{{ path('app_groupe_delete', {'id': groupe.id}) }}" style="display: inline;">
+                                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ groupe.id) }}">
+                                                                <button class="btn btn-danger">Supprimer</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-users fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted">Aucun groupe trouvé</h4>
+                        <p class="text-muted">Commencez par créer votre premier groupe.</p>
+                        <a href="{{ path('app_groupe_new') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>Créer le premier groupe
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Script AJAX pour la recherche -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$(document).ready(function(){
+    function loadGroups(search = '') {
+        $.ajax({
+            url: '{{ path('app_groupe_search') }}',
+            type: 'GET',
+            data: { q: search },
+            success: function(data) {
+                $('#groupsBody').html(data);
+            },
+            error: function() {
+                $('#groupsBody').html('<tr><td colspan="6" class="text-center text-danger py-4">Erreur de chargement</td></tr>');
+            }
+        });
+    }
+
+    // Chargement initial
+    loadGroups();
+
+    // Recherche avec délai
+    let timeout;
+    $('#searchInput').on('keyup', function() {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            loadGroups($(this).val().trim());
+        }, 300);
+    });
+});
+</script>
+{% endblock %}
+

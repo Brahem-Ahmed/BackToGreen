@@ -1,0 +1,111 @@
+{% extends 'backoffice/layout.html.twig' %}
+
+{% block title %}Member Details - BacktoGreen{% endblock %}
+
+{% block contenu %}
+<div class="container px-4 px-lg-5 my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="text-primary">
+                    <i class="fas fa-user me-2"></i>Member Details
+                </h1>
+                <a href="{{ path('app_membre_groupe_index') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-1"></i>Back to List
+                </a>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Member Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <th class="w-25 text-muted">ID</th>
+                                <td class="fw-semibold">{{ membre_groupe.id }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">User</th>
+                                <td>
+                                    <i class="fas fa-user me-1 text-muted"></i>
+                                    {% if membre_groupe.idUser %}
+                                        {{ membre_groupe.idUser.nom }} {{ membre_groupe.idUser.prenom }}
+                                        <small class="text-muted">({{ membre_groupe.idUser.email }})</small>
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Group</th>
+                                <td>
+                                    <i class="fas fa-users me-1 text-muted"></i>
+                                    {% if membre_groupe.idGroupe %}
+                                        {{ membre_groupe.idGroupe.nom }}
+                                    {% else %}
+                                        <span class="text-muted">N/A</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Join Date</th>
+                                <td>
+                                    <i class="fas fa-calendar me-1 text-muted"></i>
+                                    {{ membre_groupe.dateAdhesion ? membre_groupe.dateAdhesion|date('Y-m-d H:i:s') : 'N/A' }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Status</th>
+                                <td>
+                                    {% set status_class = '' %}
+                                    {% if membre_groupe.statut == 'ACTIVE' %}
+                                        {% set status_class = 'bg-success' %}
+                                    {% elseif membre_groupe.statut == 'PENDING' %}
+                                        {% set status_class = 'bg-warning text-dark' %}
+                                    {% elseif membre_groupe.statut == 'INACTIVE' %}
+                                        {% set status_class = 'bg-secondary' %}
+                                    {% elseif membre_groupe.statut == 'BANNED' %}
+                                        {% set status_class = 'bg-danger' %}
+                                    {% else %}
+                                        {% set status_class = 'bg-light text-dark' %}
+                                    {% endif %}
+                                    <span class="badge {{ status_class }} fs-6">
+                                        <i class="fas fa-circle me-1 small"></i>
+                                        {{ membre_groupe.statut.label() }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <a href="{{ path('app_membre_groupe_edit', {'id': membre_groupe.id}) }}" class="btn btn-primary">
+                        <i class="fas fa-edit me-1"></i>Edit
+                    </a>
+                </div>
+                <div>
+                    {{ include('membre_groupe/_delete_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.table-borderless td,
+.table-borderless th {
+    border: none;
+    padding: 0.75rem 0.5rem;
+}
+.table-borderless tr:not(:last-child) {
+    border-bottom: 1px solid #e9ecef;
+}
+</style>
+{% endblock %}

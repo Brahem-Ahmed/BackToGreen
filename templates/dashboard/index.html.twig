@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - BackToGreen</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f5f5;
+        }
+        .card {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>📊 Dashboard BackToGreen</h1>
+        <a href="{{ path('app_groupe_index') }}" class="btn btn-secondary">← Retour aux groupes</a>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        {% for group in groupsStats %}
+        <div class="col-md-4 mb-3">
+            <div class="card border-primary">
+                <div class="card-body">
+                    <h5 class="card-title">{{ group.nom }}</h5>
+                    <p class="card-text text-muted">{{ group.description }}</p>
+                    <div class="d-flex justify-content-between">
+                        <span class="badge bg-success">{{ group.activeMembersCount }}/{{ group.nombreMembres }} membres</span>
+                        <span class="badge bg-info">{{ group.disponible }} place{% if group.disponible > 1 %}s{% endif %}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>📊 Membres par groupe</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="chartMembersPerGroup"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>🥧 Distribution des statuts</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="chartStatusDistribution"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>📈 Croissance des adhésions</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="chartMembersPerMonth"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Chart 1: Members per group
+    const membersData = {{ membersPerGroup | raw }};
+    const labels1 = membersData.slice(1).map(row => row[0]);
+    const data1 = membersData.slice(1).map(row => row[1]);
+
+    if (labels1.length > 0) {
+        new Chart(document.getElementById('chartMembersPerGroup'), {
+            type: 'bar',
+            data: {
+                labels: labels1,
+                datasets: [{
+                    label: 'Nombre de membres',
+                    data: data1,
+                    backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Chart 2: Status distribution
+    const statusData = {{ statusDistribution | raw }};
+    const labels2 = statusData.slice(1).map(row => row[0]);
+    const data2 = statusData.slice(1).map(row => row[1]);
+    const colors = ['#28a745', '#dc3545', '#ffc107', '#17a2b8'];
+
+    if (labels2.length > 0) {
+        new Chart(document.getElementById('chartStatusDistribution'), {
+            type: 'doughnut',
+            data: {
+                labels: labels2,
+                datasets: [{
+                    data: data2,
+                    backgroundColor: colors.slice(0, labels2.length),
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+    }
+
+    // Chart 3: Members per month
+    const monthData = {{ membersPerMonth | raw }};
+    const labels3 = monthData.slice(1).map(row => row[0]);
+    const data3 = monthData.slice(1).map(row => row[1]);
+
+    if (labels3.length > 0) {
+        new Chart(document.getElementById('chartMembersPerMonth'), {
+            type: 'line',
+            data: {
+                labels: labels3,
+                datasets: [{
+                    label: 'Adhésions par mois',
+                    data: data3,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 5,
+                    pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+</body>
+</html>
