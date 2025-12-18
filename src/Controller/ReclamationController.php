@@ -30,6 +30,7 @@ final class ReclamationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $reclamation->setDateReclamation(new \DateTime()); // Ajout automatique de la date
             $entityManager->persist($reclamation);
             $entityManager->flush();
 

@@ -1,40 +1,126 @@
-{% extends 'frontoffice/base.html.twig' %}
+{% extends 'backoffice/layout.html.twig' %}
 
+{% block title %}Avis Management - BacktoGreen{% endblock %}
 
-{% block title %}Avis Index{% endblock %}
+{% block contenu %}
+    <main>
+        <div class="container-fluid px-4">
+            <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+                <h1 class="text-primary">
+                    <i class="fas fa-comments me-2"></i>Avis Management
+                </h1>
+                {#<a href="{{ path('app_avis_new') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Create New Avis
+                </a>#}
+            </div>
 
-{% block body %}
-    <h1>Avis index</h1>
+            {# AJOUTÉ : Nouvelle carte de recherche #}
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">
+            <i class="fas fa-search me-2"></i>Recherche avancée
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {# AJOUTÉ : Champ de recherche par mot-clé #}
+            <div class="col-md-6 mb-3">
+                <label for="searchKeyword" class="form-label">Recherche par mot-clé</label>
+                <div class="input-group">
+                    <input type="text" 
+                           class="form-control" 
+                           id="searchKeyword" 
+                           placeholder="Rechercher dans les commentaires..."
+                           aria-label="Recherche par mot-clé">
+                    <span class="input-group-text">
+                        <i class="fas fa-search"></i>
+                    </span>
+                </div>
+            </div>
+            
+            {# AJOUTÉ : Sélecteur pour filtrer par note #}
+            <div class="col-md-4 mb-3">
+                <label for="searchNote" class="form-label">Filtrer par note</label>
+                <select class="form-select" id="searchNote">
+                    <option value="all">Toutes les notes</option>
+                    <option value="5">★★★★★ (5)</option>
+                    <option value="4">★★★★☆ (4)</option>
+                    <option value="3">★★★☆☆ (3)</option>
+                    <option value="2">★★☆☆☆ (2)</option>
+                    <option value="1">★☆☆☆☆ (1)</option>
+                </select>
+            </div>
+            
+            {# AJOUTÉ : Bouton de réinitialisation #}
+            <div class="col-md-2 mb-3 d-flex align-items-end">
+                <button type="button" class="btn btn-secondary w-100" id="resetSearch">
+                    <i class="fas fa-redo me-1"></i>Réinitialiser
+                </button>
+            </div>
+        </div>
+        
+       
+    </div>
+</div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Commentaire</th>
-                <th>Note</th>
-                <th>DateAvis</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for avi in avis %}
-            <tr>
-                <td>{{ avi.id }}</td>
-                <td>{{ avi.commentaire }}</td>
-                <td>{{ avi.note }}</td>
-                <td>{{ avi.dateAvis ? avi.dateAvis|date('Y-m-d H:i:s') : '' }}</td>
-                <td>
-                    <a href="{{ path('app_avis_show', {'id': avi.id}) }}">show</a>
-                    <a href="{{ path('app_avis_edit', {'id': avi.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="5">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>All Reviews
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {# === CONTENEUR DES RÉSULTATS AJAX === #}
+                <div id="searchResults" class="mt-3">
+                    {% include 'avis/liste.html.twig' with {'avis': avis} %}
+                </div>
 
-    <a href="{{ path('app_avis_new') }}">Create new</a>
-{% endblock  %}
+                      
+                </div>
+            </div>
+        </div>
+    </main>
+
+    {# Script Ajax simple #}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const search = document.getElementById('searchKeyword');
+        const note = document.getElementById('searchNote');
+        const reset = document.getElementById('resetSearch');
+        const content = document.getElementById('searchResults');
+
+        function loadData() {
+            // Afficher loading
+            content.innerHTML = '<div class="text-center p-4"><div class="spinner-border"></div></div>';
+            
+            // Récupérer les valeurs
+            const searchVal = search.value;
+            const noteVal = note.value;
+            
+            // Envoyer la requête
+            fetch('{{ path("app_avis_search") }}?search=' + encodeURIComponent(searchVal) + '&note=' + noteVal)
+                .then(response => response.text())
+                .then(html => {
+                    content.innerHTML = html;
+                })
+                .catch(error => {
+                    content.innerHTML = '<div class="alert alert-danger">Erreur de chargement</div>';
+                });
+        }
+
+        // Événements
+        if (search) search.addEventListener('keyup', function() {
+            setTimeout(loadData, 300); // Délai de 300ms
+        });
+        
+        if (note) note.addEventListener('change', loadData);
+        
+        if (reset) reset.addEventListener('click', function() {
+            search.value = '';
+            note.value = '';
+            loadData();
+        });
+    });
+    </script>
+
+{% endblock %}

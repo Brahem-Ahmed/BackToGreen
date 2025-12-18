@@ -1,13 +1,43 @@
-<!DOCTYPE html>
+{% extends 'frontoffice/base.html.twig' %}
 
-<title>Edit Avis</title>
+{% block title %}Edit Avis - BacktoGreen{% endblock %}
 
-{% block body %}
-    <h1>Edit Avis</h1>
+{% block hero %}
+<div class="container px-4 px-lg-5 my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="text-primary">
+                    <i class="fas fa-edit me-2"></i>Edit Avis
+                </h1>
+                <a href="{{ path('app_user_avis', {'id': user.id})}}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-1"></i>Back to List
+                </a>
+            </div>
 
-    {{ include('avis/_form.html.twig', {'button_label': 'Update'}) }}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Edit Avis Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {{ include('avis/_form.html.twig', {'button_label': 'Update'}) }}
+                </div>
+            </div>
 
-    <a href="{{ path('app_avis_index') }}">back to list</a>
-
-    {{ include('avis/_delete_form.html.twig') }}
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Danger Zone
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">Once you delete this review, there is no going back. Please be certain.</p>
+                    {{ include('avis/_delete_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
