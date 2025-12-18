@@ -1,34 +1,102 @@
-<!DOCTYPE html>
+{% extends 'frontoffice/base.html.twig' %}
 
-<title>Avis</title>
+{% block title %}Avis Details - BacktoGreen{% endblock %}
 
-{% block body %}
-    <h1>Avis</h1>
+{% block hero %}
+<div class="container px-4 px-lg-5 my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="text-primary">
+                    <i class="fas fa-comment-medical me-2"></i>Avis Details
+                </h1>
+                <a href="{{path('app_user_avis', {'id': user.id}) }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-1"></i>Back to List
+                </a>
+            </div>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ avi.id }}</td>
-            </tr>
-            <tr>
-                <th>Commentaire</th>
-                <td>{{ avi.commentaire }}</td>
-            </tr>
-            <tr>
-                <th>Note</th>
-                <td>{{ avi.note }}</td>
-            </tr>
-            <tr>
-                <th>DateAvis</th>
-                <td>{{ avi.dateAvis ? avi.dateAvis|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-        </tbody>
-    </table>
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Review Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <th class="w-25 text-muted">ID</th>
+                                <td class="fw-semibold">{{ avi.id }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Commentaire</th>
+                                <td>{{ avi.commentaire }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Note</th>
+                                <td>
+                                    <span class="badge bg-warning text-dark fs-6">
+                                        {% for i in 1..5 %}
+                                            <i class="fas fa-star{{ i > avi.note ? '-o' : '' }}"></i>
+                                        {% endfor %}
+                                        ({{ avi.note }}/5)
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Date Avis</th>
+                                <td>
+                                    <i class="fas fa-calendar me-1 text-muted"></i>
+                                    {{ avi.dateAvis ? avi.dateAvis|date('Y-m-d H:i:s') : 'N/A' }}
+                                </td>
+                            </tr>
+                            {% if avi.idUser %}
+                            <tr>
+                                <th class="text-muted">User</th>
+                                <td>
+                                    <i class="fas fa-user me-1 text-muted"></i>
+                                    {{ avi.idUser.nom }} {{ avi.idUser.prenom }}
+                                    <small class="text-muted">({{ avi.idUser.email }})</small>
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% if avi.idEvenement %}
+                            <tr>
+                                <th class="text-muted">Event</th>
+                                <td>
+                                    <i class="fas fa-calendar-alt me-1 text-muted"></i>
+                                    {{ avi.idEvenement.titre }}
+                                </td>
+                            </tr>
+                            {% endif %}
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-    <a href="{{ path('app_avis_index') }}">back to list</a>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <a href="{{ path('app_avis_edittt', {'id': avi.id}) }}" class="btn btn-primary">
+                        <i class="fas fa-edit me-1"></i>Edit
+                    </a>
+                </div>
+                <div>
+                    {{ include('avis/_delete_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <a href="{{ path('app_avis_edit', {'id': avi.id}) }}">edit</a>
-
-    {{ include('avis/_delete_form.html.twig') }}
+<style>
+.table-borderless td,
+.table-borderless th {
+    border: none;
+    padding: 0.75rem 0.5rem;
+}
+.table-borderless tr:not(:last-child) {
+    border-bottom: 1px solid #e9ecef;
+}
+</style>
 {% endblock %}

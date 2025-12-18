@@ -1,11 +1,11 @@
-<!DOCTYPE html>
 
-<title>Edit CollecteDechet</title>
+{% extends 'backoffice/layout.html.twig' %}
+{% block title %}Edit CollecteDechet - BacktoGreen{% endblock %}
 
-{% block body %}
+{% block contenu %}
     <h1>Edit CollecteDechet</h1>
 
-    {{ include('collecte_dechet/_form.html.twig', {'button_label': 'Update'}) }}
+    {{ include('collecte_dechet/_form.html.twig', {'button_label': 'Update', 'zones_data': zones_data}) }}
 
     <a href="{{ path('app_collecte_dechet_index') }}">back to list</a>
 

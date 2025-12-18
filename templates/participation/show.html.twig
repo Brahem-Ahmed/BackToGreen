@@ -1,34 +1,189 @@
-<!DOCTYPE html>
+{% extends 'backoffice/layout.html.twig' %}
 
-<title>Participation</title>
+{% block title %}Participation Details - BacktoGreen{% endblock %}
 
-{% block body %}
-    <h1>Participation</h1>
+{% block contenu %}
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="text-primary">
+                        <i class="fas fa-calendar-check me-2"></i>Participation Details
+                    </h1>
+                    <div>
+                        <a href="{{ path('app_participation_edit', {'id': participation.id}) }}" class="btn btn-outline-primary">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </a>
+                        <a href="{{ path('app_participation_pdf', {'id': participation.id}) }}" target="_blank" rel="noopener" class="btn btn-outline-success">
+                            <i class="fas fa-file-pdf me-1"></i>PDF
+                        </a>
+                        <a href="{{ path('app_participation_index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Back to List
+                        </a>
+                    </div>
+                </div>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ participation.id }}</td>
-            </tr>
-            <tr>
-                <th>IdUser</th>
-                <td>{{ participation.idUser }}</td>
-            </tr>
-            <tr>
-                <th>DateInscription</th>
-                <td>{{ participation.dateInscription ? participation.dateInscription|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Statut</th>
-                <td>{{ participation.statut }}</td>
-            </tr>
-        </tbody>
-    </table>
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>Participation Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <strong>ID:</strong>
+                                <p class="fw-bold text-primary">{{ participation.id }}</p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <strong>Status:</strong>
+                                <p>
+                                    {% if participation.statut %}
+                                        {% set status_value = participation.statut.value %}
+                                        {% set status_class = status_value == 'CONFIRME' ? 'bg-success' : 
+                                                              status_value == 'INSCRIT' ? 'bg-info' : 
+                                                              status_value == 'PRESENT' ? 'bg-success' :
+                                                              status_value == 'ABSENT' ? 'bg-warning' :
+                                                              status_value == 'ANNULE' ? 'bg-danger' : 'bg-secondary' %}
+                                        <span class="badge {{ status_class }} fs-6">{{ participation.statut.label }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">No status</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
 
-    <a href="{{ path('app_participation_index') }}">back to list</a>
+                        <div class="row">
+                            <div class="col-12 mb-4">
+                                <h6 class="text-primary border-bottom pb-2">
+                                    <i class="fas fa-user me-2"></i>User Information
+                                </h6>
+                                {% if participation.idUser %}
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <strong>Name:</strong>
+                                            <p>{{ participation.idUser.prenom }} {{ participation.idUser.nom }}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Email:</strong>
+                                            <p>
+                                                <a href="mailto:{{ participation.idUser.email }}" class="text-decoration-none">
+                                                    <i class="fas fa-envelope me-1"></i>{{ participation.idUser.email }}
+                                                </a>
+                                            </p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Phone:</strong>
+                                            <p>
+                                                <a href="tel:{{ participation.idUser.telephone }}" class="text-decoration-none">
+                                                    <i class="fas fa-phone me-1"></i>{{ participation.idUser.telephone }}
+                                                </a>
+                                            </p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Role:</strong>
+                                            <p>
+                                                {% if participation.idUser.role %}
+                                                    <span class="badge bg-primary">{{ participation.idUser.role.label }}</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">No role</span>
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <p class="text-muted">No user assigned</p>
+                                {% endif %}
+                            </div>
+                        </div>
 
-    <a href="{{ path('app_participation_edit', {'id': participation.id}) }}">edit</a>
+                        <div class="row">
+                            <div class="col-12 mb-4">
+                                <h6 class="text-primary border-bottom pb-2">
+                                    <i class="fas fa-calendar-alt me-2"></i>Event Information
+                                </h6>
+                                {% if participation.idEvenement %}
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <strong>Event Title:</strong>
+                                            <p class="fw-bold">{{ participation.idEvenement.titre }}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Category:</strong>
+                                            <p>
+                                                {% set cats = participation.idEvenement.categorie is iterable ? participation.idEvenement.categorie : (participation.idEvenement.categorie ? [participation.idEvenement.categorie] : []) %}
+                                                {% if cats|length > 0 %}
+                                                    {% for c in cats %}
+                                                        <span class="badge bg-success me-1">{{ c }}</span>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <span class="badge bg-secondary">No category</span>
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Start Date:</strong>
+                                            <p>
+                                                <i class="fas fa-calendar me-1 text-muted"></i>
+                                                {{ participation.idEvenement.dateDebut ? participation.idEvenement.dateDebut|date('Y-m-d H:i') : '' }}
+                                            </p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>End Date:</strong>
+                                            <p>
+                                                <i class="fas fa-calendar me-1 text-muted"></i>
+                                                {{ participation.idEvenement.dateFin ? participation.idEvenement.dateFin|date('Y-m-d H:i') : '' }}
+                                            </p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Location:</strong>
+                                            <p>
+                                                <i class="fas fa-map-marker-alt me-1 text-muted"></i>
+                                                {{ participation.idEvenement.lieu }}
+                                            </p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Capacity:</strong>
+                                            <p>
+                                                <span class="badge bg-info">{{ participation.idEvenement.capaciteMax }}</span> participants
+                                            </p>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <p class="text-muted">No event assigned</p>
+                                {% endif %}
+                            </div>
+                        </div>
 
-    {{ include('participation/_delete_form.html.twig') }}
+                        <div class="row">
+                            <div class="col-12">
+                                <h6 class="text-primary border-bottom pb-2">
+                                    <i class="fas fa-calendar-day me-2"></i>Registration Details
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <strong>Registration Date:</strong>
+                                        <p>
+                                            <i class="fas fa-clock me-1 text-muted"></i>
+                                            {{ participation.dateInscription ? participation.dateInscription|date('Y-m-d H:i') : 'Not set' }}
+                                        </p>
+                                    </div>
+                                    {% if participation.commentaire %}
+                                    <div class="col-12">
+                                        <strong>Comments:</strong>
+                                        <p class="border p-3 rounded bg-light">{{ participation.commentaire }}</p>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex justify-content-between align-items-center">
+                    {{ include('participation/_delete_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

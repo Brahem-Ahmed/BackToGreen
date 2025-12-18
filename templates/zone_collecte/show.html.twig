@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+{% extends 'backoffice/layout.html.twig' %}
 
-<title>ZoneCollecte</title>
+{% block title %}show ZoneCollecte - BacktoGreen{% endblock %}
 
-{% block body %}
+{% block contenu %}
     <h1>ZoneCollecte</h1>
 
     <table class="table">
@@ -37,7 +37,7 @@
             </tr>
             <tr>
                 <th>TypeDechet</th>
-                <td>{{ zone_collecte.typeDechet }}</td>
+                <td>{{ zone_collecte.typeDechet.label() }}</td>
             </tr>
         </tbody>
     </table>

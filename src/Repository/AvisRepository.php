@@ -16,6 +16,25 @@ class AvisRepository extends ServiceEntityRepository
         parent::__construct($registry, Avis::class);
     }
 
+    public function search(?string $keyword = null, ?int $note = null): array
+{
+    $qb = $this->createQueryBuilder('a');
+    
+    if ($keyword) {
+        $qb->andWhere('a.commentaire LIKE :keyword')
+           ->setParameter('keyword', '%' . $keyword . '%');
+    }
+    
+    if ($note) {
+        $qb->andWhere('a.note = :note')
+           ->setParameter('note', $note);
+    }
+    
+    $qb->orderBy('a.dateAvis', 'DESC');
+    
+    return $qb->getQuery()->getResult();
+}
+
     //    /**
     //     * @return Avis[] Returns an array of Avis objects
     //     */

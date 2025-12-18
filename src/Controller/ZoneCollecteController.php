@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/zone/collecte')]
+#[Route('/zone_collecte')]
 final class ZoneCollecteController extends AbstractController
 {
     #[Route(name: 'app_zone_collecte_index', methods: ['GET'])]

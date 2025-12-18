@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\CollecteDechetRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CollecteDechetRepository::class)]
 class CollecteDechet
@@ -13,19 +14,27 @@ class CollecteDechet
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
-    private ?\DateTime $dateCollecte = null;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[Assert\NotNull(message: 'Collection date is required.')]
+    #[Assert\Type(type: \DateTimeInterface::class, message: 'Collection date must be a valid date and time.')]
+    private ?\DateTimeInterface $dateCollecte = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'Quantity is required.')]
+    #[Assert\Type(type: 'numeric', message: 'Quantity must be a number.')]
+    #[Assert\Positive(message: 'Quantity must be positive.')]
     private ?float $quantite = null;
 
     #[ORM\Column(enumType: TypeDechet::class)]
+    #[Assert\NotNull(message: 'Waste type is required.')]
     private ?TypeDechet $typeDechet = null;
 
     #[ORM\Column(enumType: StatutCollecte::class)]
+    #[Assert\NotNull(message: 'Collection status is required.')]
     private ?StatutCollecte $statut = null;
 
     #[ORM\ManyToOne(inversedBy: 'collecteDechets')]
+    #[Assert\NotNull(message: 'Collection zone is required.')]
     private ?ZoneCollecte $idZone = null;
 
     #[ORM\ManyToOne(inversedBy: 'collecteDechets')]
@@ -38,12 +47,12 @@ class CollecteDechet
 
     
 
-    public function getDateCollecte(): ?\DateTime
+    public function getDateCollecte(): ?\DateTimeInterface
     {
         return $this->dateCollecte;
     }
 
-    public function setDateCollecte(\DateTime $dateCollecte): static
+    public function setDateCollecte(?\DateTimeInterface $dateCollecte): static
     {
         $this->dateCollecte = $dateCollecte;
 

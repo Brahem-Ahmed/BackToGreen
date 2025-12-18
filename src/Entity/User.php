@@ -8,6 +8,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+
+#[ORM\Entity(repositoryClass: UserRepository::class)]
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
@@ -54,6 +59,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(max: 255, maxMessage: 'Email address cannot be longer than {{ limit }} characters.')]
     private ?string $email = null;
 
+    #[ORM\Column(name: 'mot_de_passe', length: 255)]
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Password is required.')]
     #[Assert\Length(
@@ -297,7 +303,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     // UserInterface methods
     public function getUserIdentifier(): string
     {
-        return $this->email ?? '';
+        return (string) $this->email;
     }
 
     public function getRoles(): array
@@ -308,17 +314,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $roles[] = $this->role->value;
         }
 
+        // Map RoleUser enum to Symfony roles
+        $roles = ['ROLE_USER'];
+        
+        if ($this->role === RoleUser::ADMIN) {
+            $roles[] = 'ROLE_ADMIN';
+        }
+        
         return array_unique($roles);
     }
 
     public function eraseCredentials(): void
     {
         // Clear temporary sensitive data if any
+        // If you store any temporary, sensitive data on the user, clear it here
     }
 
     // PasswordAuthenticatedUserInterface method
     public function getPassword(): string
     {
         return $this->motDePasse ?? '';
+        return $this->motDePasse;
+    public function __toString(): string
+    {
+        return trim(sprintf('%s %s', $this->prenom ?? '', $this->nom ?? '')) ?: (string) $this->id;
     }
 }

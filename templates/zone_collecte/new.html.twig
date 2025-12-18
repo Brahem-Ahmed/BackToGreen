@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+{% extends 'backoffice/layout.html.twig' %}
 
-<title>New ZoneCollecte</title>
+{% block title %}New ZoneCollecte - BacktoGreen{% endblock %}
 
-{% block body %}
+{% block contenu %}
+
     <h1>Create new ZoneCollecte</h1>
 
     {{ include('zone_collecte/_form.html.twig') }}

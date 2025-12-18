@@ -1,8 +1,9 @@
-<!DOCTYPE html>
+{% extends 'backoffice/layout.html.twig' %}
 
-<title>Edit ZoneCollecte</title>
+{% block title %}edit ZoneCollecte - BacktoGreen{% endblock %}
 
-{% block body %}
+
+{% block contenu %}
     <h1>Edit ZoneCollecte</h1>
 
     {{ include('zone_collecte/_form.html.twig', {'button_label': 'Update'}) }}

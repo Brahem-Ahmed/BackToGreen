@@ -6,9 +6,6 @@ use App\Entity\ZoneCollecte;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<ZoneCollecte>
- */
 class ZoneCollecteRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -16,28 +13,16 @@ class ZoneCollecteRepository extends ServiceEntityRepository
         parent::__construct($registry, ZoneCollecte::class);
     }
 
-    //    /**
-    //     * @return ZoneCollecte[] Returns an array of ZoneCollecte objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('z')
-    //            ->andWhere('z.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('z.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?ZoneCollecte
-    //    {
-    //        return $this->createQueryBuilder('z')
-    //            ->andWhere('z.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    /**
+     * Recherche des zones par nom, adresse ou type de déchet
+     */
+   public function searchZones(string $search): array
+{
+    return $this->createQueryBuilder('z')
+        ->where('z.nom LIKE :search')
+        ->orWhere('z.adresse LIKE :search')
+        ->setParameter('search', '%' . $search . '%')
+        ->getQuery()
+        ->getResult();
+}
 }

@@ -6,6 +6,7 @@ use App\Repository\ZoneCollecteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ZoneCollecteRepository::class)]
 class ZoneCollecte
@@ -16,24 +17,55 @@ class ZoneCollecte
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Zone name is required.')]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: 'Zone name must be at least {{ limit }} characters long.',
+        maxMessage: 'Zone name cannot be longer than {{ limit }} characters.'
+    )]
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Address is required.')]
+    #[Assert\Length(
+        min: 5,
+        max: 255,
+        minMessage: 'Address must be at least {{ limit }} characters long.',
+        maxMessage: 'Address cannot be longer than {{ limit }} characters.'
+    )]
     private ?string $adresse = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'Latitude is required.')]
+    #[Assert\Type(type: 'numeric', message: 'Latitude must be a number.')]
+    #[Assert\Range(min: -90, max: 90, notInRangeMessage: 'Latitude must be between -90 and 90.')]
     private ?float $latitude = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'Longitude is required.')]
+    #[Assert\Type(type: 'numeric', message: 'Longitude must be a number.')]
+    #[Assert\Range(min: -180, max: 180, notInRangeMessage: 'Longitude must be between -180 and 180.')]
     private ?float $longitude = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'Capacity is required.')]
+    #[Assert\Type(type: 'numeric', message: 'Capacity must be a number.')]
+    #[Assert\Positive(message: 'Capacity must be positive.')]
     private ?int $capacite = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Operating hours are required.')]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: 'Operating hours must be at least {{ limit }} characters long.',
+        maxMessage: 'Operating hours cannot be longer than {{ limit }} characters.'
+    )]
     private ?string $horaires = null;
 
     #[ORM\Column(enumType: TypeDechet::class)]
+    #[Assert\NotNull(message: 'Waste type is required.')]
     private ?TypeDechet $typeDechet = null;
 
     /**
@@ -164,5 +196,10 @@ class ZoneCollecte
         }
 
         return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->nom ?? (string) $this->id;
     }
 }
