@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 #[Route('/user')]
 final class UserController extends AbstractController
@@ -23,17 +24,31 @@ final class UserController extends AbstractController
     }
 
     #[Route('/new', name: 'app_user_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
         $user = new User();
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($user);
-            $entityManager->flush();
+            try {
+                // Hash the password
+                $hashedPassword = $passwordHasher->hashPassword(
+                    $user,
+                    $user->getMotDePasse()
+                );
+                $user->setMotDePasse($hashedPassword);
+                
+                $entityManager->persist($user);
+                $entityManager->flush();
 
-            return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+                $this->addFlash('success', 'User has been created successfully!');
+                return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'An error occurred while creating the user. Please try again.');
+            }
+        } else if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFlash('warning', 'Please check the form for errors and try again.');
         }
 
         return $this->render('user/new.html.twig', [
@@ -51,15 +66,29 @@ final class UserController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_user_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, User $user, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response
     {
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+            try {
+                // Only hash password if it was changed
+                $plainPassword = $form->get('motDePasse')->getData();
+                if (!empty($plainPassword)) {
+                    $hashedPassword = $passwordHasher->hashPassword($user, $plainPassword);
+                    $user->setMotDePasse($hashedPassword);
+                }
+                
+                $entityManager->flush();
 
-            return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+                $this->addFlash('success', 'User has been updated successfully!');
+                return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'An error occurred while updating the user. Please try again.');
+            }
+        } else if ($form->isSubmitted() && !$form->isValid()) {
+            $this->addFlash('warning', 'Please check the form for errors and try again.');
         }
 
         return $this->render('user/edit.html.twig', [
@@ -72,8 +101,16 @@ final class UserController extends AbstractController
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($user);
-            $entityManager->flush();
+            try {
+                $entityManager->remove($user);
+                $entityManager->flush();
+                
+                $this->addFlash('success', 'User has been deleted successfully!');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'An error occurred while deleting the user. Please try again.');
+            }
+        } else {
+            $this->addFlash('error', 'Invalid CSRF token. Please try again.');
         }
 
         return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
