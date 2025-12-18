@@ -40,6 +40,8 @@
         "symfony/stimulus-bundle": "^2.30",
         "symfony/string": "6.4.*",
         "symfony/translation": "6.4.*",
+        "guzzlehttp/guzzle": "^7.8",
+        "stichoza/google-translate-php": "^5.1",
         "symfony/twig-bundle": "6.4.*",
         "symfony/ux-leaflet-map": "^2.31",
         "symfony/ux-map": "^2.31",
@@ -57,7 +59,8 @@
             "symfony/flex": true,
             "symfony/runtime": true
         },
-        "sort-packages": true
+        "sort-packages": true,
+        "disable-tls": true
     },
     "autoload": {
         "psr-4": {
