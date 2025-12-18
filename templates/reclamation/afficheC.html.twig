@@ -1,0 +1,145 @@
+{% extends 'backoffice/layout.html.twig' %}
+{% block title %}Reclamation Management - BacktoGreen{% endblock %}
+
+{% block contenu %}
+    <main class="py-4">
+        <div class="container">
+            
+            <!-- En-tête principal -->
+            <div class="d-flex align-items-center mb-5 gap-3">
+                <div class="bg-primary bg-opacity-10 rounded-4 p-3 flex-shrink-0">
+                    <i class="fas fa-exclamation-circle text-primary fa-2x"></i>
+                </div>
+                <h1 class="mb-0 fw-bold text-primary" style="font-size: 2.3rem; letter-spacing: -0.5px;">
+                    Reclamation Management
+                </h1>
+                <a href="{{ path('app_reclamation_new_for_user',{'userId': user.id}) }}" class="btn btn-primary ms-auto">
+                    <i class="fas fa-plus me-1"></i> Create New Reclamation
+                </a>
+            </div>
+
+            <!-- Carte principale contenant la liste -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white rounded-top">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i> Toutes les Réclamations
+                    </h5>
+                </div>
+                <div class="card-body p-4 p-lg-5">
+                    
+                    {% if reclamations|length > 0 %}
+                        <div class="row g-4">
+                            {% for reclamation in reclamations %}
+                                <div class="col-12">
+                                    <div class="border rounded-4 shadow-sm bg-white overflow-hidden h-100">
+                                        
+                                        <!-- En-tête de la carte : Date + Priorité + Statut -->
+                                        <div class="d-flex justify-content-between align-items-center px-4 py-3 bg-light border-bottom">
+                                            <div class="d-flex align-items-center gap-4">
+                                                <span class="text-muted small fw-medium">
+                                                    {{ reclamation.dateReclamation ? reclamation.dateReclamation|date('j') ~ ' Déc ' ~ reclamation.dateReclamation|date('Y') : 'N/A' }}
+                                                </span>
+
+                                                {# Priorité - entité liée #}
+                                                {% set prioriteLibelle = reclamation.priorite ? (reclamation.priorite.libelle ?? 'UNKNOWN') : 'UNKNOWN' %}
+                                                {% set priority_class = 
+                                                    prioriteLibelle|upper == 'HIGH' ? 'bg-danger' : 
+                                                    (prioriteLibelle|upper == 'MEDIUM' ? 'bg-warning text-dark' : 
+                                                    (prioriteLibelle|upper == 'LOW' ? 'bg-info' : 'bg-secondary'))
+                                                %}
+                                                <span class="badge {{ priority_class }}">
+                                                    {{ prioriteLibelle|upper }}
+                                                </span>
+
+                                                {# Statut - entité liée #}
+                                                {% set statutLibelle = reclamation.statut ? (reclamation.statut.libelle ?? 'UNKNOWN') : 'UNKNOWN' %}
+                                                {% set status_class = 
+                                                    statutLibelle|upper == 'RESOLVED' ? 'bg-success' :
+                                                    (statutLibelle|upper == 'IN_PROGRESS' ? 'bg-primary' :
+                                                    (statutLibelle|upper == 'PENDING' ? 'bg-warning text-dark' :
+                                                    (statutLibelle|upper == 'CLOSED' ? 'bg-secondary' : 'bg-light text-dark')))
+                                                %}
+                                                <span class="badge {{ status_class }}">
+                                                    {{ statutLibelle|upper }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Contenu principal -->
+                                        <div class="p-4 pt-3">
+                                            <h5 class="fw-bold text-primary mb-2">{{ reclamation.titre }}</h5>
+                                            <p class="text-muted mb-3">
+                                                {{ reclamation.description|length > 150 ? reclamation.description|slice(0, 150) ~ '...' : reclamation.description }}
+                                            </p>
+                                            
+                                            {# Réponse #}
+                                            {% if reclamation.reponse and reclamation.reponse|trim is not empty %}
+                                                <div class="bg-light rounded-3 p-3 mt-3">
+                                                    <small class="text-muted fw-medium">Réponse :</small>
+                                                    <p class="mb-0 mt-1">
+                                                        {{ reclamation.reponse|length > 200 ? reclamation.reponse|slice(0, 200) ~ '...' : reclamation.reponse }}
+                                                    </p>
+                                                </div>
+                                            {% else %}
+                                                <span class="badge bg-warning text-dark">Aucune réponse</span>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <!-- Actions -->
+                                        <div class="px-4 pb-4 text-end">
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ path('app_reclamation_show', {'id': reclamation.id}) }}"
+                                                   class="btn btn-outline-secondary btn-sm">Voir</a>
+                                                <a href="{{ path('app_reclamation_edit', {'id': reclamation.id}) }}"
+                                                   class="btn btn-outline-primary btn-sm">Modifier</a>
+                                                <button type="button"
+                                                        class="btn btn-outline-danger btn-sm"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal{{ reclamation.id }}">
+                                                    Supprimer
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Modal de suppression -->
+                                <div class="modal fade" id="deleteModal{{ reclamation.id }}" tabindex="-1">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header border-0 pb-0">
+                                                <h5 class="modal-title text-danger">Confirmer la suppression</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body text-center pt-2">
+                                                <p class="mb-2">Voulez-vous vraiment supprimer cette réclamation ?</p>
+                                                <strong>"{{ reclamation.titre }}"</strong>
+                                            </div>
+                                            <div class="modal-footer border-0 justify-content-center">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                <form method="post" action="{{ path('app_reclamation_delete', {'id': reclamation.id}) }}" style="display:inline;">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reclamation.id) }}">
+                                                    <button class="btn btn-danger">Supprimer</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                    {% else %}
+                        <div class="text-center py-5 my-5">
+                            <i class="fas fa-exclamation-circle fa-5x text-muted mb-4"></i>
+                            <h4 class="text-muted">Aucune réclamation trouvée</h4>
+                            <p class="text-muted">Commencez par créer votre première réclamation.</p>
+                            <a href="{{ path('app_reclamation_new') }}" class="btn btn-primary mt-3">
+                                <i class="fas fa-plus me-1"></i> Créer la première réclamation
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}

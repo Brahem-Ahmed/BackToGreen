@@ -1,45 +1,170 @@
-<!DOCTYPE html>
+{% extends 'backoffice/layout.html.twig' %}
 
-<title>Reclamation index</title>
+{% block title %}Reclamation Management - BacktoGreen{% endblock %}
 
-{% block body %}
-    <h1>Reclamation index</h1>
+{% block contenu %}
+    <main>
+        <div class="container-fluid px-4">
+            <div class="d-flex justify-content-between align-items-center mt-4 mb-4">
+                <h1 class="text-primary">
+                    <i class="fas fa-exclamation-circle me-2"></i>Reclamation Management
+                </h1>
+                <a href="{{ path('app_reclamation_new') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Create New Reclamation
+                </a>
+            </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Titre</th>
-                <th>Description</th>
-                <th>DateReclamation</th>
-                <th>Reponse</th>
-                <th>Priorite</th>
-                <th>Statut</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for reclamation in reclamations %}
-            <tr>
-                <td>{{ reclamation.id }}</td>
-                <td>{{ reclamation.titre }}</td>
-                <td>{{ reclamation.description }}</td>
-                <td>{{ reclamation.dateReclamation ? reclamation.dateReclamation|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ reclamation.reponse }}</td>
-                <td>{{ reclamation.priorite }}</td>
-                <td>{{ reclamation.statut }}</td>
-                <td>
-                    <a href="{{ path('app_reclamation_show', {'id': reclamation.id}) }}">show</a>
-                    <a href="{{ path('app_reclamation_edit', {'id': reclamation.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="8">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>All Reclamations
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if reclamations|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th><i class="fas fa-hashtag me-1"></i>ID</th>
+                                        <th><i class="fas fa-heading me-1"></i>Title</th>
+                                        <th><i class="fas fa-align-left me-1"></i>Description</th>
+                                        <th><i class="fas fa-calendar me-1"></i>Date</th>
+                                        <th><i class="fas fa-reply me-1"></i>Response</th>
+                                        <th><i class="fas fa-flag me-1"></i>Priority</th>
+                                        <th><i class="fas fa-info-circle me-1"></i>Status</th>
+                                        <th><i class="fas fa-cogs me-1"></i>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for reclamation in reclamations %}
+                                    <tr>
+                                        <td class="fw-bold">{{ reclamation.id }}</td>
+                                        <td>{{ reclamation.titre }}</td>
+                                        <td>
+                                            {% if reclamation.description|length > 50 %}
+                                                {{ reclamation.description|slice(0, 50) }}...
+                                            {% else %}
+                                                {{ reclamation.description }}
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small>
+                                                <i class="fas fa-clock me-1 text-muted"></i>
+                                                {{ reclamation.dateReclamation ? reclamation.dateReclamation|date('Y-m-d') : '' }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            {% if reclamation.reponse %}
+                                                {% if reclamation.reponse|length > 30 %}
+                                                    {{ reclamation.reponse|slice(0, 30) }}...
+                                                {% else %}
+                                                    {{ reclamation.reponse }}
+                                                {% endif %}
+                                            {% else %}
+                                                <span class="badge bg-warning text-dark">No response</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if reclamation.priorite %}
+                                                {% set priority_class = '' %}
+                                                {% if reclamation.priorite == 'HIGH' %}
+                                                    {% set priority_class = 'bg-danger' %}
+                                                {% elseif reclamation.priorite == 'MEDIUM' %}
+                                                    {% set priority_class = 'bg-warning text-dark' %}
+                                                {% elseif reclamation.priorite == 'LOW' %}
+                                                    {% set priority_class = 'bg-info' %}
+                                                {% else %}
+                                                    {% set priority_class = 'bg-secondary' %}
+                                                {% endif %}
+                                                <span class="badge {{ priority_class }}">
+                                                    {{ reclamation.priorite ? reclamation.priorite.label() : '' }}
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Not set</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if reclamation.statut %}
+                                                {% set status_class = '' %}
+                                                {% if reclamation.statut == 'RESOLVED' %}
+                                                    {% set status_class = 'bg-success' %}
+                                                {% elseif reclamation.statut == 'IN_PROGRESS' %}
+                                                    {% set status_class = 'bg-primary' %}
+                                                {% elseif reclamation.statut == 'PENDING' %}
+                                                    {% set status_class = 'bg-warning text-dark' %}
+                                                {% elseif reclamation.statut == 'CLOSED' %}
+                                                    {% set status_class = 'bg-secondary' %}
+                                                {% else %}
+                                                    {% set status_class = 'bg-light text-dark' %}
+                                                {% endif %}
+                                                <span class="badge {{ status_class }}">
+                                                    {{ reclamation.statut ? reclamation.statut.label() : '' }}
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-light text-dark">Unknown</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ path('app_reclamation_show', {'id': reclamation.id}) }}" 
+                                                   class="btn btn-outline-info btn-sm" 
+                                                   title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{{ path('app_reclamation_edit', {'id': reclamation.id}) }}" 
+                                                   class="btn btn-outline-primary btn-sm" 
+                                                   title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" 
+                                                        class="btn btn-outline-danger btn-sm" 
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#deleteModal{{ reclamation.id }}"
+                                                        title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
 
-    <a href="{{ path('app_reclamation_new') }}">Create new</a>
+                                            <!-- Delete Modal -->
+                                            <div class="modal fade" id="deleteModal{{ reclamation.id }}" tabindex="-1">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Confirm Delete</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Are you sure you want to delete reclamation <strong>"{{ reclamation.titre }}"</strong>?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <form method="post" action="{{ path('app_reclamation_delete', {'id': reclamation.id}) }}" style="display: inline;">
+                                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reclamation.id) }}">
+                                                                <button class="btn btn-danger">Delete</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-exclamation-circle fa-4x text-muted mb-3"></i>
+                            <h4 class="text-muted">No Reclamations Found</h4>
+                            <p class="text-muted">Start by creating your first reclamation.</p>
+                            <a href="{{ path('app_reclamation_new') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-1"></i>Create First Reclamation
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
 {% endblock %}
