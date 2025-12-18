@@ -1,0 +1,12 @@
+<div class="card h-100 shadow-sm">
+    <div class="card-body d-flex flex-column">
+        <h5 class="card-title">{{ zone.nom }}</h5>
+        <p class="card-text small mb-1"><i class="fas fa-map-marker-alt me-2"></i>{{ zone.adresse }}</p>
+        <p class="card-text small mb-1">Type: {{ zone.typeDechet.label() }}</p>
+        <p class="card-text small mb-3">Capacité: {{ zone.capacite }} kg</p>
+
+        <div class="mt-auto d-flex gap-2">
+            <a href="{{ path('front_zone_show', {'id': zone.id}) }}" class="btn btn-sm btn-outline-primary">Voir</a>
+        </div>
+    </div>
+</div>

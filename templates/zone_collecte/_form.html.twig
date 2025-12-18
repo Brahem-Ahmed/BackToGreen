@@ -1,4 +1,231 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': true, 'id': 'zoneCollecteForm'}}) }}
+
+<div class="alert alert-info mb-4" id="validationInfo">
+    <i class="fas fa-info-circle me-2"></i>
+    <strong>Form Validation:</strong> All fields marked with <span class="text-danger">*</span> are required. 
+    Please ensure all information is accurate before submitting.
+</div>
+
+<!-- Location Information Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h5 class="text-primary border-bottom pb-2 mb-3">
+            <i class="fas fa-map-marker-alt me-2"></i>Location Information
+        </h5>
+    </div>
+    <div class="col-md-6 mb-3">
+        {{ form_label(form.nom, null, {'label_attr': {'class': 'form-label required'}}) }}
+        <span class="text-danger">*</span>
+        {{ form_widget(form.nom) }}
+        {{ form_errors(form.nom) }}
+        <div class="invalid-feedback">Please provide a valid zone name.</div>
+        {% if form.nom.vars.help %}
+            <div class="form-text">{{ form.nom.vars.help }}</div>
+        {% endif %}
+    </div>
+    <div class="col-md-6 mb-3">
+        {{ form_label(form.adresse, null, {'label_attr': {'class': 'form-label required'}}) }}
+        <span class="text-danger">*</span>
+        {{ form_widget(form.adresse) }}
+        {{ form_errors(form.adresse) }}
+        <div class="invalid-feedback">Please provide a valid address.</div>
+        {% if form.adresse.vars.help %}
+            <div class="form-text">{{ form.adresse.vars.help }}</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Geographic Map Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h5 class="text-primary border-bottom pb-2 mb-3">
+            <i class="fas fa-map me-2"></i>Geographic Location
+        </h5>
+    </div>
+    <div class="col-12 mb-3">
+        <p class="text-muted small">Click on the map to select the zone location or enter coordinates manually.</p>
+        <div id="mapContainer" style="height: 400px; border: 2px solid #0d6efd; border-radius: 5px; margin-bottom: 15px;"></div>
+    </div>
+    <div class="col-md-6 mb-3">
+        {{ form_label(form.latitude, null, {'label_attr': {'class': 'form-label required'}}) }}
+        <span class="text-danger">*</span>
+        {{ form_widget(form.latitude) }}
+        {{ form_errors(form.latitude) }}
+        <div class="invalid-feedback">Please provide a valid latitude (-90 to 90).</div>
+        {% if form.latitude.vars.help %}
+            <div class="form-text">{{ form.latitude.vars.help }}</div>
+        {% endif %}
+    </div>
+    <div class="col-md-6 mb-3">
+        {{ form_label(form.longitude, null, {'label_attr': {'class': 'form-label required'}}) }}
+        <span class="text-danger">*</span>
+        {{ form_widget(form.longitude) }}
+        {{ form_errors(form.longitude) }}
+        <div class="invalid-feedback">Please provide a valid longitude (-180 to 180).</div>
+        {% if form.longitude.vars.help %}
+            <div class="form-text">{{ form.longitude.vars.help }}</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Capacity & Operations Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h5 class="text-primary border-bottom pb-2 mb-3">
+            <i class="fas fa-box me-2"></i>Capacity & Operations
+        </h5>
+    </div>
+    <div class="col-md-6 mb-3">
+        {{ form_label(form.capacite, null, {'label_attr': {'class': 'form-label required'}}) }}
+        <span class="text-danger">*</span>
+        {{ form_widget(form.capacite) }}
+        {{ form_errors(form.capacite) }}
+        <div class="invalid-feedback">Please provide a valid capacity in kilograms.</div>
+        {% if form.capacite.vars.help %}
+            <div class="form-text">{{ form.capacite.vars.help }}</div>
+        {% endif %}
+    </div>
+    <div class="col-md-6 mb-3">
+        {{ form_label(form.horaires, null, {'label_attr': {'class': 'form-label required'}}) }}
+        <span class="text-danger">*</span>
+        {{ form_widget(form.horaires) }}
+        {{ form_errors(form.horaires) }}
+        <div class="invalid-feedback">Please provide valid operating hours.</div>
+        {% if form.horaires.vars.help %}
+            <div class="form-text">{{ form.horaires.vars.help }}</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Waste Type Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h5 class="text-primary border-bottom pb-2 mb-3">
+            <i class="fas fa-recycle me-2"></i>Waste Type
+        </h5>
+    </div>
+    <div class="col-md-6 mb-3">
+        {{ form_label(form.typeDechet, null, {'label_attr': {'class': 'form-label required'}}) }}
+        <span class="text-danger">*</span>
+        {{ form_widget(form.typeDechet) }}
+        {{ form_errors(form.typeDechet) }}
+        <div class="invalid-feedback">Please select a waste type.</div>
+        {% if form.typeDechet.vars.help %}
+            <div class="form-text">{{ form.typeDechet.vars.help }}</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Hidden Fields (if any) -->
+{{ form_rest(form) }}
+
+<!-- Action Buttons -->
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="{{ path('app_zone_collecte_index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-1"></i>{{ button_label|default('Save Zone') }}
+            </button>
+        </div>
+    </div>
+</div>
+
 {{ form_end(form) }}
+
+{# Form validation is handled by assets/js/scripts.js #}
+
+<!-- Leaflet Map Library -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Find latitude and longitude inputs with correct selectors
+    const latInput = document.querySelector('input[name*="latitude"]');
+    const lngInput = document.querySelector('input[name*="longitude"]');
+    const mapContainer = document.getElementById('mapContainer');
+    
+    // Verify elements exist
+    if (!latInput || !lngInput || !mapContainer) {
+        console.error('Map or input fields not found');
+        return;
+    }
+    
+    // Initialize map with default center (France center)
+    let defaultLat = parseFloat(latInput.value) || 48.8566;
+    let defaultLng = parseFloat(lngInput.value) || 2.3522;
+    
+    const map = L.map('mapContainer').setView([defaultLat, defaultLng], 13);
+    
+    // Add tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19,
+        minZoom: 2
+    }).addTo(map);
+    
+    // Create marker
+    let marker = L.marker([defaultLat, defaultLng], {
+        draggable: true,
+        title: 'Zone Location'
+    }).addTo(map);
+    
+    // Update coordinates when marker is dragged
+    marker.on('dragend', function() {
+        const coords = marker.getLatLng();
+        latInput.value = coords.lat.toFixed(6);
+        lngInput.value = coords.lng.toFixed(6);
+        // Trigger input event for form validation
+        latInput.dispatchEvent(new Event('input', { bubbles: true }));
+        lngInput.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    
+    // Update coordinates when map is clicked
+    map.on('click', function(e) {
+        const coords = e.latlng;
+        latInput.value = coords.lat.toFixed(6);
+        lngInput.value = coords.lng.toFixed(6);
+        
+        // Move marker to new location
+        marker.setLatLng(coords);
+        
+        // Trigger input event
+        latInput.dispatchEvent(new Event('input', { bubbles: true }));
+        lngInput.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    
+    // Update marker position when coordinates are manually edited
+    latInput.addEventListener('change', updateMarker);
+    lngInput.addEventListener('change', updateMarker);
+    
+    function updateMarker() {
+        const lat = parseFloat(latInput.value);
+        const lng = parseFloat(lngInput.value);
+        
+        if (!isNaN(lat) && !isNaN(lng)) {
+            marker.setLatLng([lat, lng]);
+            map.setView([lat, lng], 13);
+        }
+    }
+    
+    // Force map to recalculate size
+    setTimeout(function() {
+        map.invalidateSize();
+    }, 100);
+});
+</script>
+<div class="col-12 mb-3">
+    <p class="text-muted small">Click on the map to select the zone location or enter coordinates manually.</p>
+    
+    <!-- Symfony UX Map element -->
+    <div {{ stimulus_controller('map') }}
+         data-map-lat-value="{{ form.latitude.vars.value|default(48.8566) }}"
+         data-map-lng-value="{{ form.longitude.vars.value|default(2.3522) }}"
+         data-map-zoom-value="13"
+         style="height: 400px; border: 2px solid #0d6efd; border-radius: 5px; margin-bottom: 15px;"
+         id="uxMapContainer">
+    </div>
+</div>

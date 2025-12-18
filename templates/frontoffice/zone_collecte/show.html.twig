@@ -1,0 +1,100 @@
+{% extends 'frontoffice/base.html.twig' %}
+
+{% block title %}Zone: {{ zone.nom }}{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+    <div class="mb-3">
+        <a href="{{ path('front_zone_index') }}" class="btn btn-link">&larr; Retour aux zones</a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-title">{{ zone.nom }}</h2>
+            <p class="text-muted">{{ zone.adresse }}</p>
+
+            <dl class="row">
+                <dt class="col-sm-3">Type</dt>
+                <dd class="col-sm-9">{{ zone.typeDechet.label() }}</dd>
+
+                <dt class="col-sm-3">Capacité</dt>
+                <dd class="col-sm-9">{{ zone.capacite }} kg</dd>
+
+                <dt class="col-sm-3">Horaires</dt>
+                <dd class="col-sm-9">{{ zone.horaires }}</dd>
+
+                <dt class="col-sm-3">Coordonnées</dt>
+                <dd class="col-sm-9">{{ zone.latitude }}, {{ zone.longitude }}</dd>
+            </dl>
+
+            <div class="d-flex gap-2">
+                {# Front users can only view; edit/delete are restricted to admin/backoffice #}
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="mb-3">Emplacement sur la carte</h5>
+
+            {% if zone.latitude is not empty and zone.longitude is not empty %}
+                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+                <div id="zoneMap" style="width: 100%; height: 360px; border-radius: 6px;"></div>
+
+                <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+                <script>
+                    (function() {
+                        try {
+                            const lat = parseFloat('{{ zone.latitude }}');
+                            const lon = parseFloat('{{ zone.longitude }}');
+                            if (isNaN(lat) || isNaN(lon)) {
+                                document.getElementById('zoneMap').innerHTML = '<div class="alert alert-warning">Coordonnées non disponibles.</div>';
+                                return;
+                            }
+
+                            const map = L.map('zoneMap').setView([lat, lon], 15);
+
+                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                maxZoom: 19,
+                                attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+                            }).addTo(map);
+
+                            const marker = L.marker([lat, lon]).addTo(map);
+                            marker.bindPopup(`<strong>{{ zone.nom|e('js') }}</strong><br>{{ zone.adresse|e('js') }}`).openPopup();
+                        } catch (e) {
+                            console.error('Map init error', e);
+                        }
+                    })();
+                </script>
+            {% else %}
+                <div class="alert alert-info">Coordonnées de la zone indisponibles.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<div class="card mt-4">
+    <div class="card-body">
+        <h5 class="mb-3">QR Code de cette zone</h5>
+        
+        <div class="text-center">
+            {% set zone_url = url('front_zone_show', {'id': zone.id}) %}
+            {% set qr_url = 'https://quickchart.io/qr?text=' ~ zone_url ~ '&size=200' %}
+            
+            <img 
+                src="{{ qr_url }}" 
+                alt="QR Code pour {{ zone.nom }}"
+                class="img-fluid mb-3"
+                style="max-width: 200px;"
+            >
+            
+            <div>
+                <a href="{{ qr_url }}&download=1" 
+                   class="btn btn-primary btn-sm"
+                   download="qr-zone-{{ zone.id }}.png">
+                    <i class="fas fa-download me-1"></i> Télécharger QR Code
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

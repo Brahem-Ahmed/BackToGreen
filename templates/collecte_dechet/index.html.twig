@@ -1,11 +1,26 @@
-<!DOCTYPE html>
 
-<title>CollecteDechet index</title>
+{% extends 'backoffice/layout.html.twig' %}
+{% block title %}CollecteDechet index - BacktoGreen{% endblock %}
 
-{% block body %}
-    <h1>CollecteDechet index</h1>
 
-    <table class="table">
+
+{% block contenu %}
+    <style>
+        /* Light green background for backoffice index pages */
+        .backoffice-index-bg {
+            background: #eaf9ed; /* pale green */
+            padding: 24px;
+            border-radius: 8px;
+        }
+        .action-btns .btn {
+            margin-right: 6px;
+        }
+    </style>
+
+    <div class="backoffice-index-bg">
+        <h1 class="mb-4">CollecteDechet</h1>
+
+        <table class="table">
         <thead>
             <tr>
                 <th>Id</th>
@@ -13,6 +28,8 @@
                 <th>Quantite</th>
                 <th>TypeDechet</th>
                 <th>Statut</th>
+                <th>Zone</th>
+                <th>User</th>
                 <th>actions</th>
             </tr>
         </thead>
@@ -22,20 +39,32 @@
                 <td>{{ collecte_dechet.id }}</td>
                 <td>{{ collecte_dechet.dateCollecte ? collecte_dechet.dateCollecte|date('Y-m-d H:i:s') : '' }}</td>
                 <td>{{ collecte_dechet.quantite }}</td>
-                <td>{{ collecte_dechet.typeDechet }}</td>
-                <td>{{ collecte_dechet.statut }}</td>
+                <td>{{ collecte_dechet.typeDechet.label() }}</td>
+                <td>{{ collecte_dechet.statut.label() }}</td>
+                <td>{{ collecte_dechet.idZone ? collecte_dechet.idZone.nom : '' }}</td>
+                <td>{{ collecte_dechet.idUser ? collecte_dechet.idUser : '' }}</td>
                 <td>
-                    <a href="{{ path('app_collecte_dechet_show', {'id': collecte_dechet.id}) }}">show</a>
-                    <a href="{{ path('app_collecte_dechet_edit', {'id': collecte_dechet.id}) }}">edit</a>
+                    <div class="action-btns">
+                        <a class="btn btn-sm btn-outline-primary" href="{{ path('app_collecte_dechet_show', {'id': collecte_dechet.id}) }}">Voir</a>
+                        <a class="btn btn-sm btn-outline-secondary" href="{{ path('app_collecte_dechet_edit', {'id': collecte_dechet.id}) }}">Modifier</a>
+                    </div>
                 </td>
             </tr>
         {% else %}
             <tr>
-                <td colspan="6">no records found</td>
+                <td colspan="8">no records found</td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
-
-    <a href="{{ path('app_collecte_dechet_new') }}">Create new</a>
+        <div class="mt-3">
+            <a class="btn btn-success" href="{{ path('app_collecte_dechet_new') }}">Créer une nouvelle collecte</a>
+        </div>
+    </div>
 {% endblock %}
+
+    {% block after_content %}
+        <div class="mt-3">
+            <a class="btn btn-info" href="{{ path('app_collecte_dechet_stats') }}">Statistiques par type (quantité)</a>
+        </div>
+    {% endblock %}
