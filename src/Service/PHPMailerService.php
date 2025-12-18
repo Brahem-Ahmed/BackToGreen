@@ -2,13 +2,11 @@
 
 namespace App\Service;
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
 use Psr\Log\LoggerInterface;
 
 class PHPMailerService
 {
-    private PHPMailer $mailer;
+    private $mailer = null;
     private LoggerInterface $logger;
     private string $smtpHost;
     private string $smtpUser;
@@ -19,16 +17,33 @@ class PHPMailerService
     public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
-        $this->mailer = new PHPMailer(true);
         
-        // Load SMTP configuration from environment
+        // Load SMTP configuration from environment (don't create PHPMailer yet)
         $this->smtpHost = $_ENV['SMTP_HOST'] ?? 'localhost';
         $this->smtpUser = $_ENV['SMTP_USER'] ?? '';
         $this->smtpPassword = $_ENV['SMTP_PASSWORD'] ?? '';
         $this->smtpPort = (int)($_ENV['SMTP_PORT'] ?? 1025);
         $this->smtpEncryption = $_ENV['SMTP_ENCRYPTION'] ?? 'tls';
-        
-        $this->configureMailer();
+    }
+    
+    private function getMailer()
+    {
+        if ($this->mailer === null) {
+            // Dynamically require the PHPMailer class files
+            require_once __DIR__ . '/../../vendor/phpmailer/phpmailer/src/Exception.php';
+            require_once __DIR__ . '/../../vendor/phpmailer/phpmailer/src/PHPMailer.php';
+            require_once __DIR__ . '/../../vendor/phpmailer/phpmailer/src/SMTP.php';
+            
+            try {
+                $className = '\\PHPMailer\\PHPMailer\\PHPMailer';
+                $this->mailer = new $className(true);
+                $this->configureMailer();
+            } catch (\Exception $e) {
+                $this->logger->error('Failed to initialize PHPMailer: ' . $e->getMessage());
+                throw $e;
+            }
+        }
+        return $this->mailer;
     }
 
     private function configureMailer(): void
@@ -52,7 +67,7 @@ class PHPMailerService
             if ($_ENV['APP_ENV'] === 'dev') {
                 $this->mailer->SMTPDebug = 0; // Set to 2 for detailed debug output
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error('PHPMailer configuration failed: ' . $e->getMessage());
         }
     }
@@ -76,29 +91,31 @@ class PHPMailerService
     ): bool
     {
         try {
+            $mailer = $this->getMailer();
+            
             // Clear previous recipients
-            $this->mailer->clearAllRecipients();
+            $mailer->clearAllRecipients();
             
             // Add recipient
-            $this->mailer->addAddress($toEmail, $toName);
+            $mailer->addAddress($toEmail, $toName);
             
             // Add reply-to if provided
             if ($replyTo) {
-                $this->mailer->addReplyTo($replyTo);
+                $mailer->addReplyTo($replyTo);
             }
             
             // Set email content
-            $this->mailer->isHTML(true);
-            $this->mailer->Subject = $subject;
-            $this->mailer->Body = $htmlBody;
-            $this->mailer->AltBody = strip_tags($htmlBody);
+            $mailer->isHTML(true);
+            $mailer->Subject = $subject;
+            $mailer->Body = $htmlBody;
+            $mailer->AltBody = strip_tags($htmlBody);
             
             // Send the email
-            $this->mailer->send();
+            $mailer->send();
             
             $this->logger->info("Email sent successfully to $toEmail with subject: $subject");
             return true;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error("Failed to send email to $toEmail: " . $e->getMessage());
             return false;
         }
@@ -115,22 +132,24 @@ class PHPMailerService
     public function sendToMultiple(array $recipients, string $subject, string $htmlBody): bool
     {
         try {
-            $this->mailer->clearAllRecipients();
+            $mailer = $this->getMailer();
+            
+            $mailer->clearAllRecipients();
             
             foreach ($recipients as $email => $name) {
-                $this->mailer->addAddress($email, $name);
+                $mailer->addAddress($email, $name);
             }
             
-            $this->mailer->isHTML(true);
-            $this->mailer->Subject = $subject;
-            $this->mailer->Body = $htmlBody;
-            $this->mailer->AltBody = strip_tags($htmlBody);
+            $mailer->isHTML(true);
+            $mailer->Subject = $subject;
+            $mailer->Body = $htmlBody;
+            $mailer->AltBody = strip_tags($htmlBody);
             
-            $this->mailer->send();
+            $mailer->send();
             
             $this->logger->info("Email sent to " . count($recipients) . " recipients with subject: $subject");
             return true;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error("Failed to send bulk email: " . $e->getMessage());
             return false;
         }
@@ -144,11 +163,12 @@ class PHPMailerService
     public function testConnection(): bool
     {
         try {
-            $this->mailer->smtpConnect();
-            $this->mailer->smtpClose();
+            $mailer = $this->getMailer();
+            $mailer->smtpConnect();
+            $mailer->smtpClose();
             $this->logger->info("SMTP connection test successful");
             return true;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error("SMTP connection test failed: " . $e->getMessage());
             return false;
         }

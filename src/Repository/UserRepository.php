@@ -16,6 +16,25 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
+    /**
+     * Load user by email and ensure it's not a proxy
+     */
+    public function loadUserByIdentifier(string $identifier): ?User
+    {
+        $qb = $this->createQueryBuilder('u')
+            ->where('u.email = :email')
+            ->setParameter('email', $identifier);
+        
+        $user = $qb->getQuery()->getOneOrNullResult();
+        
+        // Force initialization of the entity to avoid proxy issues
+        if ($user instanceof User) {
+            $user->getEmail(); // Access a property to initialize
+        }
+        
+        return $user;
+    }
+
 //    /**
 //     * @return User[] Returns an array of User objects
 //     */

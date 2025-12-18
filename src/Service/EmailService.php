@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\User;
+use App\Service\PHPMailerService;
 use Twig\Environment;
 use Psr\Log\LoggerInterface;
 

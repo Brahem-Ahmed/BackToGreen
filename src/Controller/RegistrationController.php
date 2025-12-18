@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class RegistrationController extends AbstractController
 {
@@ -17,7 +18,8 @@ class RegistrationController extends AbstractController
     public function register(
         Request $request,
         EntityManagerInterface $entityManager,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
+        UserPasswordHasherInterface $passwordHasher
     ): Response
     {
         // If already logged in, redirect to home
@@ -86,8 +88,8 @@ class RegistrationController extends AbstractController
                     $user->setAddresse($addresse);
                     $user->setRole(RoleUser::MEMBRE);
 
-                    // Hash password using bcrypt directly
-                    $hashedPassword = password_hash($motDePasse, PASSWORD_BCRYPT, ['cost' => 12]);
+                    // Hash password using Symfony's password hasher
+                    $hashedPassword = $passwordHasher->hashPassword($user, $motDePasse);
                     $user->setMotDePasse($hashedPassword);                    // Validate user entity
                     $violations = $validator->validate($user);
                     if (count($violations) > 0) {
