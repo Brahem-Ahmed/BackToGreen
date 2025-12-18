@@ -14,7 +14,26 @@ class CollecteDechetRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, CollecteDechet::class);
+
+        
     }
+
+    /**
+     * Retourne le total de quantité groupé par typeDechet.
+     * Renvoie un tableau de lignes avec les clés ['type' => valeur, 'total' => somme]
+     *
+     * @return array<int, array{type: mixed, total: string}>
+     */
+    public function getTotalsByType(): array
+    {
+        $qb = $this->createQueryBuilder('c')
+            ->select('c.typeDechet AS type, SUM(c.quantite) AS total')
+            ->groupBy('c.typeDechet')
+        ;
+
+        return $qb->getQuery()->getResult();
+    }
+    
 
 //    /**
 //     * @return CollecteDechet[] Returns an array of CollecteDechet objects

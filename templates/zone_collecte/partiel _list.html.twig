@@ -1,0 +1,49 @@
+{# templates/zone_collecte/_list.html.twig #}
+{% if zone_collectes|length > 0 %}
+    <div class="table-responsive">
+        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Adresse</th>
+                    <th>Type</th>
+                    <th>Capacité</th>
+                    <th>Horaires</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for zone in zone_collectes %}
+                <tr>
+                    <td>{{ zone.id }}</td>
+                    <td>{{ zone.nom }}</td>
+                    <td>{{ zone.adresse }}</td>
+                    <td>{{ zone.typeDechet.label() }}</td>
+                    <td>{{ zone.capacite }} kg</td>
+                    <td>{{ zone.horaires }}</td>
+                    <td>
+                        <a href="{{ path('app_zone_collecte_show', {'id': zone.id}) }}" 
+                           class="btn btn-sm btn-info">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{{ path('app_zone_collecte_edit', {'id': zone.id}) }}" 
+                           class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="mt-3 text-muted">
+        {{ zone_collectes|length }} zone(s) trouvée(s)
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        Aucune zone trouvée
+    </div>
+{% endif %}

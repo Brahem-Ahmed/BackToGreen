@@ -1,8 +1,7 @@
-<!DOCTYPE html>
+{% extends 'backoffice/layout.html.twig' %}
+{% block title %}Zone Management - BacktoGreen{% endblock %}
 
-<title>ZoneCollecte index</title>
-
-{% block body %}
+{% block contenu %}
     <h1>ZoneCollecte index</h1>
 
     <table class="table">
@@ -29,7 +28,7 @@
                 <td>{{ zone_collecte.longitude }}</td>
                 <td>{{ zone_collecte.capacite }}</td>
                 <td>{{ zone_collecte.horaires }}</td>
-                <td>{{ zone_collecte.typeDechet }}</td>
+                <td>{{ zone_collecte.typeDechet.label() }}</td>
                 <td>
                     <a href="{{ path('app_zone_collecte_show', {'id': zone_collecte.id}) }}">show</a>
                     <a href="{{ path('app_zone_collecte_edit', {'id': zone_collecte.id}) }}">edit</a>

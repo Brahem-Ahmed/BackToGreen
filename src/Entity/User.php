@@ -325,5 +325,8 @@ class User
     public function getPassword(): string
     {
         return $this->motDePasse;
+    public function __toString(): string
+    {
+        return trim(sprintf('%s %s', $this->prenom ?? '', $this->nom ?? '')) ?: (string) $this->id;
     }
 }
