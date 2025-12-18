@@ -1,4 +1,88 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': true}}) }}
+
+<!-- User & Event Information Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h5 class="text-primary border-bottom pb-2 mb-3">
+            <i class="fas fa-calendar-check me-2"></i>Participation Information
+        </h5>
+    </div>
+    <div class="col-md-6 mb-3">
+        {{ form_label(form.idUser, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.idUser, {'attr': {'class': 'form-select'}}) }}
+        {{ form_errors(form.idUser) }}
+        {% if form.idUser.vars.help %}
+            <div class="form-text">{{ form.idUser.vars.help }}</div>
+        {% endif %}
+    </div>
+    <div class="col-md-6 mb-3">
+        {{ form_label(form.idEvenement, null, {'label_attr': {'class': 'form-label'}}) }}
+        <div class="d-flex gap-2">
+            {{ form_widget(form.idEvenement, {'attr': {'class': 'form-select'}}) }}
+            <button type="button" class="btn btn-outline-success" data-bs-toggle="offcanvas" data-bs-target="#chatbotOffcanvas" aria-controls="chatbotOffcanvas" title="Aide chatbot">
+                <i class="fas fa-robot"></i>
+            </button>
+        </div>
+        {{ form_errors(form.idEvenement) }}
+        {% if form.idEvenement.vars.help %}
+            <div class="form-text">{{ form.idEvenement.vars.help }}</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Chatbot Offcanvas -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="chatbotOffcanvas" aria-labelledby="chatbotOffcanvasLabel" style="width: 400px;">
+    <div class="offcanvas-body p-0">
+        {% include 'participation/_chatbot.html.twig' %}
+    </div>
+</div>
+
+<!-- Registration Details Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h5 class="text-primary border-bottom pb-2 mb-3">
+            <i class="fas fa-calendar-day me-2"></i>Registration Details
+        </h5>
+    </div>
+    <div class="col-md-6 mb-3">
+        {{ form_label(form.dateInscription, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.dateInscription, {'attr': {'class': 'form-control'}, 'required': true}) }}
+        {% if form.dateInscription.vars.errors|length > 0 %}
+            <div class="text-danger small mt-2">
+                {% for error in form.dateInscription.vars.errors %}
+                    <div><i class="fas fa-exclamation-circle me-1"></i>{{ error.message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if form.dateInscription.vars.help %}
+            <div class="form-text">{{ form.dateInscription.vars.help }}</div>
+        {% endif %}
+    </div>
+    <div class="col-md-6 mb-3">
+        {{ form_label(form.statut, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.statut, {'attr': {'class': 'form-select'}}) }}
+        {{ form_errors(form.statut) }}
+        {% if form.statut.vars.help %}
+            <div class="form-text">{{ form.statut.vars.help }}</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Hidden Fields -->
+{{ form_rest(form) }}
+
+<!-- Action Buttons -->
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="{{ path('app_participation_index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-1"></i>{{ button_label|default('Save Participation') }}
+            </button>
+        </div>
+    </div>
+</div>
+
 {{ form_end(form) }}

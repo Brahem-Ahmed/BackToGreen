@@ -1,0 +1,116 @@
+{% extends 'frontoffice/base.html.twig' %}
+{% block title %}Avis Management - BacktoGreen{% endblock %}
+
+{% block hero %}
+    <main class="py-4">
+        <div class="container"> {# ← C'EST LA CLÉ : tout est centré avec marges latérales automatiques #}
+
+            <!-- En-tête avec icône + titre + bouton -->
+            <div class="d-flex align-items-center mb-5 gap-3">
+                <div class="bg-secondary bg-opacity-10 rounded-4 p-3 flex-shrink-0">
+                    <i class="fas fa-comment-dots text-secondary fa-2x"></i>
+                </div>
+
+                <h1 class="mb-0 fw-bold text-secondary" style="font-size: 2.3rem; letter-spacing: -0.5px;">
+                    Historique des Avis
+                </h1>
+
+                <a href="{{ path('app_avis_new_for_user', {'userId': User.id}) }}" class="btn btn-primary ms-auto">
+                    <i class="fas fa-plus me-1"></i> Create New Avis
+                </a>
+            </div>
+
+            <!-- Carte principale -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white rounded-top">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i> Tous les Avis
+                    </h5>
+                </div>
+
+                <div class="card-body p-4 p-lg-5">
+                    {% if avis|length > 0 %}
+                        <div class="row g-4"> {# Optionnel : grille pour encore plus d'air #}
+                            {% for avi in avis %}
+                                <div class="col-12">
+                                    <div class="border rounded-4 shadow-sm bg-white overflow-hidden h-100">
+                                        <!-- Date + étoiles -->
+                                        <div class="d-flex justify-content-between align-items-center px-4 py-3 bg-light border-bottom">
+                                            <div class="d-flex align-items-center gap-4">
+                                                <span class="text-muted small fw-medium">
+                                                    {{ avi.dateAvis|date('j') }} Déc {{ avi.dateAvis|date('Y') }}
+                                                </span>
+                                                <div class="text-warning">
+                                                    {% for i in 1..5 %}
+                                                        <i class="fas fa-star{{ i > avi.note ? '-o' : '' }}"></i>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            <button class="btn btn-sm border-0 text-muted">
+                                                <i class="fas fa-thumbs-up"></i> Utile
+                                            </button>
+                                        </div>
+
+                                        <!-- Commentaire -->
+                                        <div class="p-4 pt-3">
+                                            <p class="mb-0 fw-medium lh-lg">{{ avi.commentaire }}</p>
+                                        </div>
+
+                                        <!-- Boutons d'action -->
+                                        <div class="px-4 pb-4 text-end">
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ path('app_avis_showw', {'id': avi.id}) }}"
+                                                   class="btn btn-outline-secondary btn-sm">Voir</a>
+                                                <a href="{{ path('app_avis_edittt', {'id': avi.id}) }}"
+                                                   class="btn btn-outline-primary btn-sm">Modifier</a>
+                                                <button type="button"
+                                                        class="btn btn-outline-danger btn-sm"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteModal{{ avi.id }}">
+                                                    Supprimer
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Modal de suppression (inchangée) -->
+                                <div class="modal fade" id="deleteModal{{ avi.id }}" tabindex="-1">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header border-0 pb-0">
+                                                <h5 class="modal-title text-danger">Confirmer la suppression</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body text-center pt-2">
+                                                <p class="mb-2">Voulez-vous vraiment supprimer cet avis ?</p>
+                                                <strong>"{{ avi.commentaire|slice(0, 60) }}{% if avi.commentaire|length > 60 %}...{% endif %}"</strong>
+                                            </div>
+                                            <div class="modal-footer border-0 justify-content-center">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                <form method="post" action="{{ path('app_avis_deletee', {'id': avi.id}) }}" style="display:inline;">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ avi.id) }}">
+                                                    <button class="btn btn-danger">Supprimer</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5 my-5">
+                            <i class="fas fa-comments fa-5x text-muted mb-4"></i>
+                            <h4 class="text-muted">Aucun avis trouvé</h4>
+                            <p class="text-muted">Commencez par créer votre premier avis.</p>
+                            <a href="{{ path('app_avis_new_for_user', {'userId': User.id})}}" class="btn btn-primary mt-3">
+                                Créer le premier avis
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div> {# Fin du .container #}
+    </main>
+{% endblock %}

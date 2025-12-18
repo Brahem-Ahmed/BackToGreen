@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ticket - Participation #{{ participation.id }}{% endblock %}
+
+{% block body %}
+<div style="font-family: Arial, Helvetica, sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; margin:0;">
+    <div style="border:2px solid #2b7a0b; padding:24px 32px; border-radius:8px; text-align:center; max-width:480px; width:100%; background:#fff;">
+        <h2 style="margin:0 0 8px 0; color:#2b7a0b;">Ticket de participation</h2>
+        <p style="margin:0 0 12px 0; color:#333; font-size:18px;">Événement : <strong>{{ participation.idEvenement ? participation.idEvenement.titre : '—' }}</strong></p>
+        <p style="margin:0 0 20px 0; font-size:20px; color:#111;"><strong>{{ participation.idUser ? (participation.idUser.prenom ~ ' ' ~ participation.idUser.nom) : 'Participant inconnu' }}</strong></p>
+        <p style="margin:0; font-size:14px; color:#666;">ID du ticket : <code>#{{ participation.id }}</code></p>
+    </div>
+</div>
+{% endblock %}

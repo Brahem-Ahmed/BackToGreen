@@ -1,0 +1,239 @@
+{% extends 'frontoffice/layout.html.twig' %}
+
+{% block title %}Mon Profil - BackToGreen{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    <div class="row">
+        <!-- User Profile Card -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white text-center py-3">
+                    <i class="fas fa-user-circle fa-3x mb-2"></i>
+                    <h4 class="mb-0">Mon Profil</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong><i class="fas fa-user me-2 text-success"></i>Nom complet:</strong>
+                        <p class="ms-4">{{ user.prenom }} {{ user.nom }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <strong><i class="fas fa-envelope me-2 text-success"></i>Email:</strong>
+                        <p class="ms-4">{{ user.email }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <strong><i class="fas fa-phone me-2 text-success"></i>Téléphone:</strong>
+                        <p class="ms-4">{{ user.telephone }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <strong><i class="fas fa-map-marker-alt me-2 text-success"></i>Adresse:</strong>
+                        <p class="ms-4">{{ user.addresse }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <strong><i class="fas fa-shield-alt me-2 text-success"></i>Rôle:</strong>
+                        <p class="ms-4">
+                            <span class="badge bg-success">{{ user.role.label }}</span>
+                        </p>
+                    </div>
+                    <hr>
+                    <div class="row text-center g-3">
+                        <div class="col-6">
+                            <div class="display-6 fw-bold text-success">{{ stats.total }}</div>
+                            <small class="text-muted">Total</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="display-6 fw-bold text-primary">{{ stats.upcoming }}</div>
+                            <small class="text-muted">À venir</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="display-6 fw-bold text-info">{{ stats.completed }}</div>
+                            <small class="text-muted">Terminés</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="display-6 fw-bold text-danger">{{ stats.cancelled }}</div>
+                            <small class="text-muted">Annulés</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Recommendations -->
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow">
+                <div class="card-header text-white py-3" style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);">
+                    <h4 class="mb-0">
+                        <i class="fas fa-robot me-2"></i>Événements Recommandés pour Vous
+                        <span class="badge bg-light text-primary ms-2">IA</span>
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% if recommended_events|length > 0 %}
+                        <div class="row g-3">
+                            {% for event in recommended_events %}
+                                <div class="col-md-4">
+                                    <div class="card h-100 border-primary hover-shadow" style="transition: all 0.3s;">
+                                        <div class="card-body">
+                                            <h6 class="card-title fw-bold text-primary">
+                                                <i class="fas fa-leaf me-1"></i>{{ event.titre }}
+                                            </h6>
+                                            <p class="card-text small text-muted mb-2">
+                                                {{ event.description|length > 80 ? event.description|slice(0, 80) ~ '...' : event.description }}
+                                            </p>
+                                            <div class="mb-2">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-calendar me-1"></i>
+                                                    {{ event.dateDebut ? event.dateDebut|date('d/m/Y') : 'À définir' }}
+                                                </small>
+                                            </div>
+                                            <div class="mb-3">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                                    {{ event.lieu }}
+                                                </small>
+                                            </div>
+                                            <div class="alert alert-info py-2 mb-2" style="font-size: 0.75rem;">
+                                                <i class="fas fa-lightbulb me-1"></i>
+                                                <strong>Pourquoi?</strong><br>
+                                                {{ recommendation_service.getRecommendationReason(app.user, event) }}
+                                            </div>
+                                            <a href="{{ path('app_front_event_show', {'id': event.id}) }}" class="btn btn-sm btn-outline-primary w-100">
+                                                <i class="fas fa-eye me-1"></i>Voir l'événement
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-robot fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Participez à quelques événements pour recevoir des recommandations personnalisées!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Participations List -->
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-gradient text-white py-3" style="background: linear-gradient(135deg, #2b7a0b 0%, #3d9a4e 100%);">
+                    <h4 class="mb-0">
+                        <i class="fas fa-calendar-check me-2"></i>Mes Participations
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% if participations|length > 0 %}
+                        <div class="list-group">
+                            {% for participation in participations %}
+                                {% set event = participation.idEvenement %}
+                                {% set statut = participation.statut %}
+                                
+                                <div class="list-group-item list-group-item-action mb-3 border rounded">
+                                    <div class="d-flex w-100 justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <h5 class="mb-2">
+                                                <i class="fas fa-leaf text-success me-2"></i>{{ event.titre }}
+                                            </h5>
+                                            <p class="mb-2 text-muted">{{ event.description|length > 150 ? event.description|slice(0, 150) ~ '...' : event.description }}</p>
+                                            
+                                            <div class="row g-2 mb-2">
+                                                <div class="col-md-6">
+                                                    <small>
+                                                        <i class="fas fa-map-marker-alt text-success me-1"></i>
+                                                        <strong>Lieu:</strong> {{ event.lieu }}
+                                                    </small>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <small>
+                                                        <i class="fas fa-calendar text-success me-1"></i>
+                                                        <strong>Date:</strong> {{ event.dateDebut ? event.dateDebut|date('d/m/Y') : 'À définir' }}
+                                                    </small>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <small>
+                                                        <i class="fas fa-clock text-success me-1"></i>
+                                                        <strong>Inscription:</strong> {{ participation.dateInscription|date('d/m/Y H:i') }}
+                                                    </small>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <small>
+                                                        <i class="fas fa-info-circle text-success me-1"></i>
+                                                        <strong>Statut:</strong>
+                                                        {% if statut %}
+                                                            <span class="badge bg-{{ statut.value }}">
+                                                                {{ statut.label }}
+                                                            </span>
+                                                        {% else %}
+                                                            <span class="badge bg-secondary">Non défini</span>
+                                                        {% endif %}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="ms-3">
+                                            <a href="{{ path('app_front_event_show', {'id': event.id}) }}" class="btn btn-outline-success btn-sm">
+                                                <i class="fas fa-eye me-1"></i>Voir
+                                            </a>
+                                            {% if participation.id and statut != constant('App\\Entity\\StatutParticipation::ANNULE') %}
+                                                <a href="{{ path('app_participation_pdf', {'id': participation.id}) }}" class="btn btn-outline-primary btn-sm mt-1" target="_blank">
+                                                    <i class="fas fa-ticket-alt me-1"></i>Ticket
+                                                </a>
+                                            {% endif %}
+                                            
+                                            {% if statut != constant('App\\Entity\\StatutParticipation::ANNULE') and event.dateDebut > date() %}
+                                                <form method="post" action="{{ path('app_front_participation_cancel', {'id': participation.id}) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette participation ?');">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('cancel' ~ participation.id) }}">
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm mt-1">
+                                                        <i class="fas fa-times me-1"></i>Annuler
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                            <h5 class="text-muted">Aucune participation</h5>
+                            <p class="text-muted mb-4">Vous n'êtes pas encore inscrit à un événement.</p>
+                            <a href="{{ path('app_front_events') }}" class="btn btn-success">
+                                <i class="fas fa-search me-2"></i>Découvrir les événements
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.list-group-item {
+    transition: all 0.3s ease;
+}
+
+.list-group-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}

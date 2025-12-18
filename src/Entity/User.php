@@ -6,9 +6,19 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-class User
+class User implements UserInterface, PasswordAuthenticatedUserInterface
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
+#[ORM\Entity(repositoryClass: UserRepository::class)]
+#[UniqueEntity(fields: ['email'], message: 'This email address is already in use.')]
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -16,24 +26,74 @@ class User
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Last name is required.')]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: 'Last name must be at least {{ limit }} characters long.',
+        maxMessage: 'Last name cannot be longer than {{ limit }} characters.'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-ZÀ-ÿ\s\'-]+$/u',
+        message: 'Last name can only contain letters, spaces, hyphens and apostrophes.'
+    )]
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'First name is required.')]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: 'First name must be at least {{ limit }} characters long.',
+        maxMessage: 'First name cannot be longer than {{ limit }} characters.'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-ZÀ-ÿ\s\'-]+$/u',
+        message: 'First name can only contain letters, spaces, hyphens and apostrophes.'
+    )]
     private ?string $prenom = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Email address is required.')]
+    #[Assert\Email(message: 'Please enter a valid email address.')]
+    #[Assert\Length(max: 255, maxMessage: 'Email address cannot be longer than {{ limit }} characters.')]
     private ?string $email = null;
 
+    #[ORM\Column(name: 'mot_de_passe', length: 255)]
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Password is required.')]
+    #[Assert\Length(
+        min: 8,
+        max: 255,
+        minMessage: 'Password must be at least {{ limit }} characters long.',
+        maxMessage: 'Password cannot be longer than {{ limit }} characters.'
+    )]
+    #[Assert\Regex(
+        pattern: '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/',
+        message: 'Password must contain at least one lowercase letter, one uppercase letter, and one number.'
+    )]
     private ?string $motDePasse = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Phone number is required.')]
+    #[Assert\Regex(
+        pattern: '/^[\+]?[0-9\s\-\(\)\.]{8,20}$/',
+        message: 'Please enter a valid phone number (8-20 digits).'
+    )]
     private ?string $telephone = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Address is required.')]
+    #[Assert\Length(
+        min: 5,
+        max: 500,
+        minMessage: 'Address must be at least {{ limit }} characters long.',
+        maxMessage: 'Address cannot be longer than {{ limit }} characters.'
+    )]
     private ?string $addresse = null;
 
     #[ORM\Column(type: 'string', enumType: RoleUser::class)]
+    #[Assert\NotNull(message: 'Please select a user role.')]
     private ?RoleUser $role = null;
 
     /**
@@ -54,18 +114,11 @@ class User
     #[ORM\OneToMany(targetEntity: Avis::class, mappedBy: 'idUser')]
     private Collection $avis;
 
-    /**
-     * @var Collection<int, MembreGroupe>
-     */
-    #[ORM\OneToMany(targetEntity: MembreGroupe::class, mappedBy: 'idUser')]
-    private Collection $membreGroupes;
-
     public function __construct()
     {
         $this->collecteDechets = new ArrayCollection();
         $this->reclamations = new ArrayCollection();
         $this->avis = new ArrayCollection();
-        $this->membreGroupes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -247,33 +300,43 @@ class User
         return $this;
     }
 
-    /**
-     * @return Collection<int, MembreGroupe>
-     */
-    public function getMembreGroupes(): Collection
+    // UserInterface methods
+    public function getUserIdentifier(): string
     {
-        return $this->membreGroupes;
+        return (string) $this->email;
     }
 
-    public function addMembreGroupe(MembreGroupe $membreGroupe): static
+    public function getRoles(): array
     {
-        if (!$this->membreGroupes->contains($membreGroupe)) {
-            $this->membreGroupes->add($membreGroupe);
-            $membreGroupe->setIdUser($this);
+        $roles = ['ROLE_USER'];
+        
+        if ($this->role) {
+            $roles[] = $this->role->value;
         }
 
-        return $this;
+        // Map RoleUser enum to Symfony roles
+        $roles = ['ROLE_USER'];
+        
+        if ($this->role === RoleUser::ADMIN) {
+            $roles[] = 'ROLE_ADMIN';
+        }
+        
+        return array_unique($roles);
     }
 
-    public function removeMembreGroupe(MembreGroupe $membreGroupe): static
+    public function eraseCredentials(): void
     {
-        if ($this->membreGroupes->removeElement($membreGroupe)) {
-            // set the owning side to null (unless already changed)
-            if ($membreGroupe->getIdUser() === $this) {
-                $membreGroupe->setIdUser(null);
-            }
-        }
+        // Clear temporary sensitive data if any
+        // If you store any temporary, sensitive data on the user, clear it here
+    }
 
-        return $this;
+    // PasswordAuthenticatedUserInterface method
+    public function getPassword(): string
+    {
+        return $this->motDePasse ?? '';
+        return $this->motDePasse;
+    public function __toString(): string
+    {
+        return trim(sprintf('%s %s', $this->prenom ?? '', $this->nom ?? '')) ?: (string) $this->id;
     }
 }

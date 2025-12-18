@@ -1,8 +1,7 @@
-<!DOCTYPE html>
+{% extends 'backoffice/layout.html.twig' %}
+{% block title %}CollecteDechet  - BacktoGreen{% endblock %}
 
-<title>CollecteDechet</title>
-
-{% block body %}
+{% block contenu %}
     <h1>CollecteDechet</h1>
 
     <table class="table">
@@ -21,11 +20,19 @@
             </tr>
             <tr>
                 <th>TypeDechet</th>
-                <td>{{ collecte_dechet.typeDechet }}</td>
+                <td>{{ collecte_dechet.typeDechet.label() }}</td>
             </tr>
             <tr>
                 <th>Statut</th>
-                <td>{{ collecte_dechet.statut }}</td>
+                <td>{{ collecte_dechet.statut.label() }}</td>
+            </tr>
+            <tr>
+                <th>Zone</th>
+                <td>{{ collecte_dechet.idZone ? collecte_dechet.idZone.nom : '' }}</td>
+            </tr>
+            <tr>
+                <th>User</th>
+                <td>{{ collecte_dechet.idUser ? collecte_dechet.idUser : '' }}</td>
             </tr>
         </tbody>
     </table>

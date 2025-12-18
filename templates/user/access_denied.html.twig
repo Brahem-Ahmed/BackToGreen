@@ -1,0 +1,29 @@
+{% extends "frontoffice/base.html.twig" %}
+
+{% block title %}Access Denied - User Management{% endblock %}
+
+{% block body %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="text-center">
+        <div class="display-1 fw-bold text-danger mb-4">🔒</div>
+        <h1 class="display-4 fw-bold mb-3">Access Denied</h1>
+        <p class="lead text-muted mb-4">{{ message }}</p>
+        <p class="text-muted mb-5">You don't have permission to access this page. Only administrators can manage users.</p>
+        
+        <div class="btn-group" role="group">
+            <a href="{{ path('app_home') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-home"></i> Back to Home
+            </a>
+            {% if app.user %}
+                <a href="{{ path('app_logout') }}" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            {% else %}
+                <a href="{{ path('app_login') }}" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

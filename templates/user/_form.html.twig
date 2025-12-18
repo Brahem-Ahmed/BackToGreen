@@ -1,4 +1,10 @@
-{{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': true}}) }}
+{{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': true, 'id': 'userForm'}}) }}
+
+<div class="alert alert-info mb-4" id="validationInfo">
+    <i class="fas fa-info-circle me-2"></i>
+    <strong>Form Validation:</strong> All fields marked with <span class="text-danger">*</span> are required. 
+    Please ensure all information is accurate before submitting.
+</div>
 
 <!-- Personal Information Section -->
 <div class="row mb-4">
@@ -8,14 +14,18 @@
         </h5>
     </div>
     <div class="col-md-6 mb-3">
-        {{ form_label(form.nom, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_label(form.nom, null, {'label_attr': {'class': 'form-label required'}}) }}
+        <span class="text-danger">*</span>
         {{ form_widget(form.nom) }}
         {{ form_errors(form.nom) }}
+        <div class="invalid-feedback">Please provide a valid last name (2-255 characters, letters only).</div>
     </div>
     <div class="col-md-6 mb-3">
-        {{ form_label(form.prenom, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_label(form.prenom, null, {'label_attr': {'class': 'form-label required'}}) }}
+        <span class="text-danger">*</span>
         {{ form_widget(form.prenom) }}
         {{ form_errors(form.prenom) }}
+        <div class="invalid-feedback">Please provide a valid first name (2-255 characters, letters only).</div>
     </div>
 </div>
 
@@ -27,22 +37,28 @@
         </h5>
     </div>
     <div class="col-md-6 mb-3">
-        {{ form_label(form.email, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_label(form.email, null, {'label_attr': {'class': 'form-label required'}}) }}
+        <span class="text-danger">*</span>
         {{ form_widget(form.email) }}
         {{ form_errors(form.email) }}
+        <div class="invalid-feedback">Please provide a valid email address.</div>
         {% if form.email.vars.help %}
             <div class="form-text">{{ form.email.vars.help }}</div>
         {% endif %}
     </div>
     <div class="col-md-6 mb-3">
-        {{ form_label(form.telephone, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_label(form.telephone, null, {'label_attr': {'class': 'form-label required'}}) }}
+        <span class="text-danger">*</span>
         {{ form_widget(form.telephone) }}
         {{ form_errors(form.telephone) }}
+        <div class="invalid-feedback">Please provide a valid phone number (8-20 digits).</div>
     </div>
     <div class="col-12 mb-3">
-        {{ form_label(form.addresse, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_label(form.addresse, null, {'label_attr': {'class': 'form-label required'}}) }}
+        <span class="text-danger">*</span>
         {{ form_widget(form.addresse) }}
         {{ form_errors(form.addresse) }}
+        <div class="invalid-feedback">Please provide a valid address (5-500 characters).</div>
     </div>
 </div>
 
@@ -54,12 +70,20 @@
         </h5>
     </div>
     <div class="col-md-6 mb-3">
-        {{ form_label(form.motDePasse, null, {'label_attr': {'class': 'form-label'}}) }}
-        {{ form_widget(form.motDePasse) }}
+        {{ form_label(form.motDePasse, null, {'label_attr': {'class': 'form-label required'}}) }}
+        <span class="text-danger">*</span>
+        <div class="input-group">
+            {{ form_widget(form.motDePasse) }}
+            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                <i class="fas fa-eye" id="eyeIcon"></i>
+            </button>
+        </div>
         {{ form_errors(form.motDePasse) }}
+        <div class="invalid-feedback">Password must be at least 8 characters with uppercase, lowercase, and numbers.</div>
         {% if form.motDePasse.vars.help %}
             <div class="form-text">{{ form.motDePasse.vars.help }}</div>
         {% endif %}
+        <div class="password-strength mt-2" id="passwordStrength"></div>
     </div>
 </div>
 
@@ -98,3 +122,5 @@
 </div>
 
 {{ form_end(form) }}
+
+{# Form validation is handled by assets/js/scripts.js #}
