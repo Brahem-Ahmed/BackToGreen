@@ -1,11 +1,31 @@
-<!DOCTYPE html>
+{% extends 'frontoffice/base.html.twig' %}
 
-<title>New Avis</title>
+{% block title %}Create New Avis - BacktoGreen{% endblock %}
 
-{% block body %}
-    <h1>Create new Avis</h1>
+{% block hero  %}
+<div class="container px-4 px-lg-5 my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="text-primary">
+                    <i class="fas fa-comment-medical me-2"></i>Create New Avis
+                </h1>
+                <a href="{{ path('app_user_avis', {'id': user.id})}}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-1"></i>Back to List
+                </a>
+            </div>
 
-    {{ include('avis/_form.html.twig') }}
-
-    <a href="{{ path('app_avis_index') }}">back to list</a>
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Avis Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {{ include('avis/_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

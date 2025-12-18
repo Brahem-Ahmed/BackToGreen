@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ReclamationRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ReclamationRepository::class)]
 class Reclamation
@@ -15,25 +16,43 @@ class Reclamation
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'reclamations')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?User $idUser = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\NotBlank(message: "Le titre est obligatoire.")]
+    #[Assert\Length(
+        min: 3,
+        minMessage: "Le titre doit contenir au moins {{ limit }} caractères."
+    )]
     private ?string $titre = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "La description est obligatoire.")]
+    #[Assert\Length(
+        min: 10,
+        minMessage: "La description doit contenir au moins {{ limit }} caractères."
+    )]
     private ?string $description = null;
 
     #[ORM\Column]
+    //#[Assert\NotNull(message: "La date de réclamation est obligatoire.")]
+    //#[Assert\Type(\DateTime::class)]
     private ?\DateTime $dateReclamation = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\Length(
+        min: 5,
+        minMessage: "La réponse doit contenir au moins {{ limit }} caractères."
+    )]
     private ?string $reponse = null;
 
-    #[ORM\Column(nullable: true, enumType: PrioriteReclamation::class)]
+    #[ORM\Column(type: 'string',nullable: true, enumType: PrioriteReclamation::class)]
+    #[Assert\NotNull(message: "Le statut est obligatoire.")]
     private ?PrioriteReclamation $priorite = null;
 
-    #[ORM\Column(enumType: StatutReclamation::class)]
+    #[ORM\Column(type: 'string',enumType: StatutReclamation::class)]
+    #[Assert\NotNull(message: "Le statut est obligatoire.")]
     private ?StatutReclamation $statut = null;
 
     public function getId(): ?int
@@ -104,12 +123,12 @@ class Reclamation
     /**
      * @return PrioriteReclamation[]|null
      */
-    public function getPriorite(): ?array
+    public function getPriorite(): ?PrioriteReclamation
     {
         return $this->priorite;
     }
 
-    public function setPriorite(?array $priorite): static
+    public function setPriorite(?PrioriteReclamation $priorite): static
     {
         $this->priorite = $priorite;
 
