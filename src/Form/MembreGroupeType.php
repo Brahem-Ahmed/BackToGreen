@@ -25,7 +25,7 @@ class MembreGroupeType extends AbstractType
                     return sprintf('%s (%s)', $user->getEmail(), $user->getPrenom() . ' ' . $user->getNom());
                 },
                 'label' => 'Utilisateur',
-                'placeholder' => 'Selectioner un utilisateur',
+                'placeholder' => 'Sélectionner un utilisateur',
                 'attr' => ['class' => 'form-select'],
                 'required' => true,
             ])
@@ -33,7 +33,7 @@ class MembreGroupeType extends AbstractType
                 'class' => EvenementEcologique::class,
                 'choice_label' => 'titre',
                 'label' => 'Evenement',
-                'placeholder' => 'Selectioner un evenement',
+                'placeholder' => 'Sélectionner un evenement',
                 'attr' => [
                     'class' => 'form-select',
                     'id' => 'evenement-select', // pour le JS
@@ -44,7 +44,7 @@ class MembreGroupeType extends AbstractType
                 'class' => Groupe::class,
                 'choice_label' => 'nom',
                 'label' => 'Groupe lie a l evenement',
-                'placeholder' => 'Selectioner un groupe',
+                'placeholder' => 'Sélectionner un groupe',
                 'attr' => [
                     'class' => 'form-select',
                 ],
@@ -60,7 +60,7 @@ class MembreGroupeType extends AbstractType
                 'class' => StatutMembre::class,
                 'choice_label' => fn($statut) => $statut->label(),
                 'label' => 'Statut du membre',
-                'placeholder' => 'Selectioner un statut',
+                'placeholder' => 'Sélectionner un statut',
                 'attr' => ['class' => 'form-select'],
                 'required' => true,
             ]);
