@@ -148,19 +148,19 @@
         <div class="container px-4 px-lg-5">
             <div class="row gx-4 gx-lg-5 text-center">
                 <div class="col-md-3 mb-5">
-                    <div class="stat-number" id="campaignCounter">0</div>
+                    <div class="stat-number" id="campaignCounter">{{ activeCampaigns|default(0) }}</div>
                     <div class="stat-label">Active Campaigns</div>
                 </div>
                 <div class="col-md-3 mb-5">
-                    <div class="stat-number" id="volunteerCounter">0</div>
+                    <div class="stat-number" id="volunteerCounter">{{ volunteers|default(0) }}</div>
                     <div class="stat-label">Volunteers</div>
                 </div>
                 <div class="col-md-3 mb-5">
-                    <div class="stat-number" id="eventCounter">0</div>
+                    <div class="stat-number" id="eventCounter">{{ eventsOrganized|default(0) }}</div>
                     <div class="stat-label">Events Organized</div>
                 </div>
                 <div class="col-md-3 mb-5">
-                    <div class="stat-number" id="countryCounter">0</div>
+                    <div class="stat-number" id="countryCounter">{{ countries|default(1) }}</div>
                     <div class="stat-label">Countries</div>
                 </div>
             </div>
@@ -205,75 +205,44 @@
         </div>
     </div>
     
-    <!-- Featured Campaigns -->
+    <!-- Featured Collection Zones -->
     <div class="container px-4 px-lg-5" id="campaigns">
         <div class="row gx-4 gx-lg-5">
             <div class="col-12">
-                <h2 class="my-5">Featured Campaigns</h2>
+                <h2 class="my-5">Featured Collection Zones</h2>
             </div>
-            <div class="col-md-4 mb-5">
-                <div class="card h-100 campaign-card">
-                    <img class="card-img-top" src="https://images.unsplash.com/photo-1570804439979-0a85e6ddac9c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Urban Reforestation" />
-                    <div class="card-body">
-                        <h3 class="card-title">Urban Reforestation</h3>
-                        <p class="card-text">Join our initiative to plant 10,000 trees in urban areas. Help combat air pollution and create green spaces in cities worldwide.</p>
-                        <div class="mb-3">
-                            <span class="badge bg-primary">Ongoing</span>
-                            <span class="badge bg-success ms-1">1274 Participants</span>
+            {% if featuredZones is defined and featuredZones|length > 0 %}
+                {% for zone in featuredZones %}
+                <div class="col-md-4 mb-5">
+                    <div class="card h-100 campaign-card">
+                        <img class="card-img-top" src="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="{{ zone.nom }}" />
+                        <div class="card-body">
+                            <h3 class="card-title">{{ zone.nom }}</h3>
+                            <p class="card-text">
+                                <i class="fas fa-map-marker-alt me-2"></i>{{ zone.adresse }}
+                            </p>
+                            <div class="mb-3">
+                                <span class="badge bg-primary">{{ zone.typeDechet.label }}</span>
+                                <span class="badge bg-info ms-1">Capacity: {{ zone.capacite }}</span>
+                            </div>
+                            <p class="card-text">
+                                <i class="fas fa-clock me-2"></i><strong>Hours:</strong> {{ zone.horaires }}
+                            </p>
                         </div>
-                        <div class="progress campaign-progress mb-2">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="card-footer">
+                            <a class="btn btn-primary btn-sm" href="{{ path('front_zone_show', {'id': zone.id}) }}">View Details</a>
+                            <a class="btn btn-outline-primary btn-sm ms-1" href="{{ path('front_zone_qr_code', {'id': zone.id}) }}">QR Code</a>
                         </div>
-                        <small class="text-muted">65% of goal reached</small>
-                    </div>
-                    <div class="card-footer">
-                        <a class="btn btn-primary btn-sm" href="#">Join Campaign</a>
-                        <a class="btn btn-outline-primary btn-sm ms-1" href="#">Learn More</a>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4 mb-5">
-                <div class="card h-100 campaign-card">
-                    <img class="card-img-top" src="https://images.unsplash.com/photo-1596464716127-f2a82984de30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Plastic-Free Oceans" />
-                    <div class="card-body">
-                        <h3 class="card-title">Plastic-Free Oceans</h3>
-                        <p class="card-text">Our global campaign to remove plastic waste from oceans and coastlines. Participate in cleanups or support our advocacy work.</p>
-                        <div class="mb-3">
-                            <span class="badge bg-primary">Ongoing</span>
-                            <span class="badge bg-success ms-1">3562 Participants</span>
-                        </div>
-                        <div class="progress campaign-progress mb-2">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: 82%" aria-valuenow="82" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <small class="text-muted">82% of goal reached</small>
-                    </div>
-                    <div class="card-footer">
-                        <a class="btn btn-primary btn-sm" href="#">Join Campaign</a>
-                        <a class="btn btn-outline-primary btn-sm ms-1" href="#">Learn More</a>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info text-center">
+                        <i class="fas fa-info-circle me-2"></i>No collection zones available at the moment.
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4 mb-5">
-                <div class="card h-100 campaign-card">
-                    <img class="card-img-top" src="https://images.unsplash.com/photo-1569163139394-de44cb2c8cb7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Community Gardens" />
-                    <div class="card-body">
-                        <h3 class="card-title">Community Gardens</h3>
-                        <p class="card-text">Transform unused urban spaces into productive community gardens. Promote local food production and neighborhood connections.</p>
-                        <div class="mb-3">
-                            <span class="badge bg-primary">Ongoing</span>
-                            <span class="badge bg-success ms-1">893 Participants</span>
-                        </div>
-                        <div class="progress campaign-progress mb-2">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: 45%" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <small class="text-muted">45% of goal reached</small>
-                    </div>
-                    <div class="card-footer">
-                        <a class="btn btn-primary btn-sm" href="#">Join Campaign</a>
-                        <a class="btn btn-outline-primary btn-sm ms-1" href="#">Learn More</a>
-                    </div>
-                </div>
-            </div>
+            {% endif %}
         </div>
     </div>
     
@@ -309,57 +278,8 @@
     </div>
     
     <!-- Events Section -->
-    <div class="container px-4 px-lg-5 my-5" id="events">
-        <div class="row gx-4 gx-lg-5">
-            <div class="col-12">
-                <h2 class="my-5">Upcoming Events</h2>
-            </div>
-            <div class="col-md-6 mb-4">
-                <div class="card event-calendar">
-                    <div class="card-body">
-                        <h5 class="card-title">Beach Cleanup Day</h5>
-                        <p class="card-text"><i class="fas fa-calendar me-2"></i>October 15, 2023 | 9:00 AM</p>
-                        <p class="card-text"><i class="fas fa-map-marker-alt me-2"></i>Santa Monica Beach, CA</p>
-                        <p class="card-text">Join us for a community beach cleanup. All equipment will be provided.</p>
-                        <a href="{{ path('app_front_events') }}" class="btn btn-primary btn-sm">View Events</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 mb-4">
-                <div class="card event-calendar">
-                    <div class="card-body">
-                        <h5 class="card-title">Urban Tree Planting</h5>
-                        <p class="card-text"><i class="fas fa-calendar me-2"></i>October 22, 2023 | 10:00 AM</p>
-                        <p class="card-text"><i class="fas fa-map-marker-alt me-2"></i>Central Park, New York</p>
-                        <p class="card-text">Help us plant 500 trees in Central Park. No experience necessary.</p>
-                        <a href="{{ path('app_front_events') }}" class="btn btn-primary btn-sm">View Events</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 mb-4">
-                <div class="card event-calendar">
-                    <div class="card-body">
-                        <h5 class="card-title">Environmental Education Workshop</h5>
-                        <p class="card-text"><i class="fas fa-calendar me-2"></i>November 5, 2023 | 2:00 PM</p>
-                        <p class="card-text"><i class="fas fa-map-marker-alt me-2"></i>Online Event</p>
-                        <p class="card-text">Learn about sustainable practices and how to start your own campaign.</p>
-                        <a href="{{ path('app_front_events') }}" class="btn btn-primary btn-sm">View Events</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 mb-4">
-                <div class="card event-calendar">
-                    <div class="card-body">
-                        <h5 class="card-title">Community Garden Opening</h5>
-                        <p class="card-text"><i class="fas fa-calendar me-2"></i>November 12, 2023 | 11:00 AM</p>
-                        <p class="card-text"><i class="fas fa-map-marker-alt me-2"></i>123 Green Street, Chicago</p>
-                        <p class="card-text">Celebrate the opening of our newest community garden project.</p>
-                        <a href="{{ path('app_front_events') }}" class="btn btn-primary btn-sm">View Events</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    {% block events_section %}
+    {% endblock events_section %}
     
     <!-- CTA Section -->
     <div class="cta-section">
