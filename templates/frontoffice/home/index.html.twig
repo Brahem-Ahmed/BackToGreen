@@ -1,3 +1,73 @@
 {% extends 'frontoffice/base.html.twig' %}
 
 {% block title %}BackToGreen - Environmental Campaign Organizer{% endblock %}
+
+{% block events_section %}
+{% set upcomingEvents = upcomingEvents|default([]) %}
+{% set activeCampaigns = activeCampaigns|default(0) %}
+{% set volunteers = volunteers|default(0) %}
+{% set eventsOrganized = eventsOrganized|default(0) %}
+{% set countries = countries|default(1) %}
+{% set featuredZones = featuredZones|default([]) %}
+
+<div class="container px-4 px-lg-5 my-5" id="events">
+    <h2 class="text-center my-5">Upcoming Events</h2>
+    
+    <div class="row gx-4 gx-lg-5">
+        {% if upcomingEvents is not empty %}
+            {% for event in upcomingEvents %}
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ event.titre }}</h5>
+                        <p class="card-text">
+                            <i class="fas fa-calendar me-2"></i>
+                            {{ event.dateDebut|date('F d, Y') }}
+                        </p>
+                        <p class="card-text">
+                            <i class="fas fa-map-marker-alt me-2"></i>
+                            {{ event.lieu }}
+                        </p>
+                        {% if event.description %}
+                        <p class="card-text">{{ event.description|slice(0, 100) }}...</p>
+                        {% endif %}
+                        <a href="{{ path('app_front_events') }}" class="btn btn-primary btn-sm">View Details</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle me-2"></i>No upcoming events available.
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Update stats with real data -->
+<script>
+(function() {
+    'use strict';
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        var stats = {
+            'campaignCounter': parseInt('{{ activeCampaigns|default(0) }}', 10),
+            'volunteerCounter': parseInt('{{ volunteers|default(0) }}', 10),
+            'eventCounter': parseInt('{{ eventsOrganized|default(0) }}', 10),
+            'countryCounter': parseInt('{{ countries|default(1) }}', 10)
+        };
+        
+        for (var id in stats) {
+            if (stats.hasOwnProperty(id)) {
+                var element = document.getElementById(id);
+                if (element) {
+                    element.textContent = stats[id];
+                }
+            }
+        }
+    });
+})();
+</script>
+{% endblock %}
