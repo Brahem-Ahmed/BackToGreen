@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Reclamation;
+use App\Form\AdminReclamationType;
 use App\Form\ReclamationType;
 use App\Repository\ReclamationRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -30,7 +31,11 @@ final class ReclamationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $reclamation->setDateReclamation(new \DateTime()); // Ajout automatique de la date
+            // Set the current user if authenticated
+            if ($this->getUser()) {
+                $reclamation->setIdUser($this->getUser());
+            }
+            // dateReclamation and statut are already set in the constructor
             $entityManager->persist($reclamation);
             $entityManager->flush();
 
@@ -54,7 +59,9 @@ final class ReclamationController extends AbstractController
     #[Route('/{id}/edit', name: 'app_reclamation_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Reclamation $reclamation, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(ReclamationType::class, $reclamation);
+        // Use AdminReclamationType if user is admin, otherwise use ReclamationType
+        $formType = $this->isGranted('ROLE_ADMIN') ? AdminReclamationType::class : ReclamationType::class;
+        $form = $this->createForm($formType, $reclamation);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

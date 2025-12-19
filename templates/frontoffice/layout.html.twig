@@ -50,6 +50,25 @@
         .bg-gradient {
             background: linear-gradient(135deg, #2b7a0b 0%, #3d9a4e 100%);
         }
+
+        /* Logout form button styling */
+        .dropdown-item form {
+            margin: 0;
+        }
+        
+        .dropdown-item form button {
+            width: 100%;
+            text-align: left;
+            background: none;
+            border: none;
+            padding: 0;
+            color: inherit;
+            cursor: pointer;
+        }
+        
+        .dropdown-item form button:hover {
+            background-color: var(--bs-dropdown-link-hover-bg);
+        }
     </style>
     {% block stylesheets %}{% endblock %}
 </head>

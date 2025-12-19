@@ -1,0 +1,148 @@
+{% extends 'frontoffice/layout.html.twig' %}
+
+{% block title %}My Complaints - BackToGreen{% endblock %}
+
+{% block body %}
+<div class="bg-gradient text-white py-5">
+    <div class="container">
+        <div class="row justify-content-between align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="fas fa-clipboard-list me-3"></i>My Complaints
+                </h1>
+                <p class="lead mb-0">Track the status of your submitted complaints</p>
+            </div>
+            <div class="col-lg-4 text-end">
+                <a href="{{ path('app_front_reclamation_new') }}" class="btn btn-light btn-lg">
+                    <i class="fas fa-plus me-2"></i>New Complaint
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+
+    {% if reclamations|length > 0 %}
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            {% set pending = reclamations|filter(r => r.statut.value == 'EN_ATTENTE')|length %}
+            {% set resolved = reclamations|filter(r => r.statut.value == 'RESOLU')|length %}
+            {% set inProgress = reclamations|filter(r => r.statut.value == 'EN_COURS')|length %}
+
+            <div class="col-md-4 mb-3">
+                <div class="card border-warning shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-clock text-warning fs-1 mb-2"></i>
+                        <h3 class="mb-0">{{ pending }}</h3>
+                        <p class="text-muted mb-0">Pending</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card border-primary shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-spinner text-primary fs-1 mb-2"></i>
+                        <h3 class="mb-0">{{ inProgress }}</h3>
+                        <p class="text-muted mb-0">In Progress</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card border-success shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-check-circle text-success fs-1 mb-2"></i>
+                        <h3 class="mb-0">{{ resolved }}</h3>
+                        <p class="text-muted mb-0">Resolved</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Complaints List -->
+        <div class="row">
+            {% for reclamation in reclamations %}
+                <div class="col-12 mb-3">
+                    <div class="card hover-shadow border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <div class="d-flex align-items-start mb-2">
+                                        <h5 class="mb-0 me-3">{{ reclamation.titre }}</h5>
+                                        {% set statut = reclamation.statut.value %}
+                                        {% if statut == 'EN_ATTENTE' %}
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="fas fa-clock me-1"></i>Pending
+                                            </span>
+                                        {% elseif statut == 'EN_COURS' %}
+                                            <span class="badge bg-primary">
+                                                <i class="fas fa-spinner me-1"></i>In Progress
+                                            </span>
+                                        {% elseif statut == 'RESOLU' %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check-circle me-1"></i>Resolved
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ statut }}</span>
+                                        {% endif %}
+
+                                        {% if reclamation.priorite %}
+                                            {% set priorite = reclamation.priorite.value %}
+                                            {% if priorite == 'URGENTE' %}
+                                                <span class="badge bg-danger ms-2">
+                                                    <i class="fas fa-exclamation-triangle me-1"></i>Urgent
+                                                </span>
+                                            {% elseif priorite == 'HAUTE' %}
+                                                <span class="badge bg-orange ms-2" style="background-color: #fd7e14;">High</span>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <p class="text-muted mb-2">
+                                        {{ reclamation.description|length > 150 ? reclamation.description|slice(0, 150) ~ '...' : reclamation.description }}
+                                    </p>
+                                    
+                                    <small class="text-muted">
+                                        <i class="far fa-calendar me-1"></i>
+                                        Submitted: {{ reclamation.dateReclamation|date('M d, Y - H:i') }}
+                                    </small>
+                                </div>
+                                <div class="col-lg-4 text-end">
+                                    <a href="{{ path('app_front_reclamation_show', {'id': reclamation.id}) }}" 
+                                       class="btn btn-outline-primary">
+                                        <i class="fas fa-eye me-1"></i>View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <i class="fas fa-inbox text-muted" style="font-size: 5rem;"></i>
+            </div>
+            <h3 class="text-muted mb-3">No Complaints Yet</h3>
+            <p class="text-muted mb-4">You haven't submitted any complaints. If you experience any issues, feel free to let us know.</p>
+            <a href="{{ path('app_front_reclamation_new') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-plus me-2"></i>Submit Your First Complaint
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

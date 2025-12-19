@@ -63,30 +63,30 @@
           {% include 'backoffice/includes/_topnav.html.twig' %}
         {% endblock topNavBar %}
 
-        {% block sideBar %}
-             {% include 'backoffice/includes/_sidebar.html.twig' %}
-        {% endblock sideBar %}
-        
+        <div id="layoutSidenav">
+            {% block sideBar %}
+                 {% include 'backoffice/includes/_sidebar.html.twig' %}
+            {% endblock sideBar %}
+            
+            <div id="layoutSidenav_content">
+                {% block contenu %}
+                    {% include 'backoffice/backoffice.html.twig' %}
+                {% endblock contenu %}
 
-        <div id="layoutSidenav_content">
-            {% block contenu %}
-                {% include 'backoffice/backoffice.html.twig' %}
-            {% endblock contenu %}
-
-            <footer class="py-4 bg-light mt-auto">
-                <div class="container-fluid px-4">
-                    <div class="d-flex align-items-center justify-content-between small">
-                        <div class="text-muted">Copyright &copy; BacktoGreen 2023</div>
-                        <div>
-                            <a href="#">Privacy Policy</a>
-                            &middot;
-                            <a href="#">Terms &amp; Conditions</a>
+                <footer class="py-4 bg-light mt-auto">
+                    <div class="container-fluid px-4">
+                        <div class="d-flex align-items-center justify-content-between small">
+                            <div class="text-muted">Copyright &copy; BacktoGreen 2023</div>
+                            <div>
+                                <a href="#">Privacy Policy</a>
+                                &middot;
+                                <a href="#">Terms &amp; Conditions</a>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </footer>
+                </footer>
+            </div>
         </div>
-    </div>
         
 
         {% block javascripts %}

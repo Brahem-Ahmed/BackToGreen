@@ -4,16 +4,19 @@ namespace App\Command;
 
 use App\Repository\AvisRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
+#[AsCommand(
+    name: 'app:avis:import-sentiment',
+    description: 'Import sentiment labels from a classified JSON file and persist to DB'
+)]
 class ImportAvisSentimentCommand extends Command
 {
-    protected static $defaultName = 'app:avis:import-sentiment';
-    protected static $defaultDescription = 'Import sentiment labels from a classified JSON file and persist to DB';
 
     private EntityManagerInterface $em;
     private AvisRepository $avisRepository;

@@ -1,20 +1,20 @@
 <?php
 
 namespace App\Form;
-use App\Entity\PrioriteReclamation;
-use App\Entity\StatutReclamation;
-use Symfony\Component\Form\Extension\Core\Type\EnumType;
 
+use App\Entity\PrioriteReclamation;
 use App\Entity\Reclamation;
+use App\Entity\StatutReclamation;
 use App\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\EnumType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Validator\Constraints as Assert;
 
-
-class ReclamationType extends AbstractType
+class AdminReclamationType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -31,7 +31,6 @@ class ReclamationType extends AbstractType
                 'required' => true,
                 'empty_data' => '',
             ])
-            //->add('dateReclamation')
             ->add('reponse', TextareaType::class, [
                 'attr' => [
                     'class' => 'form-control',
@@ -40,25 +39,50 @@ class ReclamationType extends AbstractType
                     'placeholder' => 'Enter response...'
                 ],
                 'label' => 'Response',
-                
+                'required' => false,
+                'constraints' => [
+                    new Assert\Length([
+                        'min' => 5,
+                        'minMessage' => 'La réponse doit contenir au moins {{ limit }} caractères.',
+                    ])
+                ],
             ])
             ->add('priorite', EnumType::class, [
                 'class' => PrioriteReclamation::class,
                 'choice_label' => function (PrioriteReclamation $priorite) {
                     return $priorite->label();
                 },
-                'label' => 'priorite',
+                'label' => 'Priorité',
                 'placeholder' => 'Select a priorite',
                 'attr' => [
                     'class' => 'form-select'
                 ],
-                'required' => true,
-                'help' => 'Choose the appropriate role for this priorite'
+                'required' => false,
+                'help' => 'Choose the appropriate priority for this reclamation'
             ])
-            //->add('priorite')
-            //->add('statut')
-            // Statut is not added to the form - it's set automatically in the entity constructor
-            // idUser is also not included - set by controller/context
+            ->add('statut', EnumType::class, [
+                'class' => StatutReclamation::class,
+                'choice_label' => function (StatutReclamation $statut) {
+                    return $statut->label();
+                },
+                'label' => 'Statut',
+                'placeholder' => 'Select a statut',
+                'attr' => [
+                    'class' => 'form-select'
+                ],
+                'required' => true,
+                'help' => 'Choose the current status for this reclamation'
+            ])
+            ->add('idUser', EntityType::class, [
+                'class' => User::class,
+                'choice_label' => 'email',
+                'label' => 'User',
+                'placeholder' => 'Select a user',
+                'attr' => [
+                    'class' => 'form-select'
+                ],
+                'required' => false,
+            ])
         ;
     }
 
@@ -66,8 +90,7 @@ class ReclamationType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Reclamation::class,
-            'validation_groups' => ['Default'],
-            'allow_extra_fields' => true,
+            'validation_groups' => ['Default', 'admin'],
         ]);
     }
 }

@@ -40,20 +40,22 @@ class Reclamation
     //#[Assert\Type(\DateTime::class)]
     private ?\DateTime $dateReclamation = null;
 
-    #[ORM\Column(length: 255)]
-    #[Assert\Length(
-        min: 5,
-        minMessage: "La réponse doit contenir au moins {{ limit }} caractères."
-    )]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $reponse = null;
 
     #[ORM\Column(type: 'string',nullable: true, enumType: PrioriteReclamation::class)]
-    #[Assert\NotNull(message: "Le statut est obligatoire.")]
     private ?PrioriteReclamation $priorite = null;
 
     #[ORM\Column(type: 'string',enumType: StatutReclamation::class)]
-    #[Assert\NotNull(message: "Le statut est obligatoire.")]
+    #[Assert\NotNull(message: "Le statut est obligatoire.", groups: ['admin'])]
     private ?StatutReclamation $statut = null;
+
+    public function __construct()
+    {
+        $this->dateReclamation = new \DateTime();
+        $this->statut = StatutReclamation::EN_ATTENTE;
+        $this->reponse = null; // Will be filled by admin when responding
+    }
 
     public function getId(): ?int
     {
@@ -113,7 +115,7 @@ class Reclamation
         return $this->reponse;
     }
 
-    public function setReponse(string $reponse): static
+    public function setReponse(?string $reponse): static
     {
         $this->reponse = $reponse;
 

@@ -1,61 +1,75 @@
-       <div id="layoutSidenav">
-            <div id="layoutSidenav_nav">
+<div id="layoutSidenav_nav">
                 <nav class="sb-sidenav accordion sb-sidenav-green" id="sidenavAccordion">
                     <div class="sb-sidenav-menu">
                         <div class="nav">
                             <div class="sb-sidenav-menu-heading">Core</div>
-                            <a class="nav-link" href="#">
+                            <a class="nav-link" href="{{ path('app_backoffice') }}">
                                 <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
                                 Dashboard
                             </a>
-                            <div class="sb-sidenav-menu-heading">Campaign Management</div>
-                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseCampaigns" aria-expanded="false" aria-controls="collapseCampaigns">
-                                <div class="sb-nav-link-icon"><i class="fas fa-seedling"></i></div>
-                                Campaigns
-                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                            </a>
-                            <div class="collapse" id="collapseCampaigns" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
-                                <nav class="sb-sidenav-menu-nested nav">
-                                    <a class="nav-link" href="#">All Campaigns</a>
-                                    <a class="nav-link" href="#">Create New</a>
-                                    <a class="nav-link" href="#">Categories</a>
-                                </nav>
-                            </div>
+                            
+                            <div class="sb-sidenav-menu-heading">Events & Activities</div>
                             <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseEvents" aria-expanded="false" aria-controls="collapseEvents">
                                 <div class="sb-nav-link-icon"><i class="fas fa-calendar-alt"></i></div>
                                 Events
                                 <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                             </a>
-                            <div class="collapse" id="collapseEvents" aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordion">
+                            <div class="collapse" id="collapseEvents" aria-labelledby="headingEvents" data-bs-parent="#sidenavAccordion">
                                 <nav class="sb-sidenav-menu-nested nav">
-                                    <a class="nav-link" href="#">All Events</a>
-                                    <a class="nav-link" href="#">Create New</a>
-                                    <a class="nav-link" href="#">Calendar</a>
+                                    <a class="nav-link" href="{{ path('app_evenement_ecologique_index') }}">All Events</a>
+                                    <a class="nav-link" href="{{ path('app_evenement_ecologique_new') }}">Create New</a>
+                                    <a class="nav-link" href="{{ path('app_participation_index') }}">Participations</a>
                                 </nav>
                             </div>
+                            
+                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseCollecte" aria-expanded="false" aria-controls="collapseCollecte">
+                                <div class="sb-nav-link-icon"><i class="fas fa-recycle"></i></div>
+                                Waste Collection
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapseCollecte" aria-labelledby="headingCollecte" data-bs-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="nav-link" href="{{ path('app_collecte_dechet_index') }}">Collections</a>
+                                    <a class="nav-link" href="{{ path('app_collecte_dechet_new') }}">New Collection</a>
+                                    <a class="nav-link" href="{{ path('app_zone_collecte_index') }}">Collection Zones</a>
+                                    <a class="nav-link" href="{{ path('app_collecte_dechet_stats') }}">Statistics</a>
+                                </nav>
+                            </div>
+                            
                             <div class="sb-sidenav-menu-heading">Community</div>
-                            <a class="nav-link" href="#">
+                            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseUsers" aria-expanded="false" aria-controls="collapseUsers">
                                 <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
-                                Volunteers
+                                Users & Groups
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                             </a>
-                            <a class="nav-link" href="#">
-                                <div class="sb-nav-link-icon"><i class="fas fa-hand-holding-heart"></i></div>
-                                Donations
+                            <div class="collapse" id="collapseUsers" aria-labelledby="headingUsers" data-bs-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="nav-link" href="{{ path('app_user_index') }}">All Users</a>
+                                    <a class="nav-link" href="{{ path('app_groupe_index') }}">Groups</a>
+                                    <a class="nav-link" href="{{ path('app_membre_groupe_index') }}">Group Members</a>
+                                    <a class="nav-link" href="{{ path('app_groupe_requests') }}">
+                                        Group Requests
+                                        {% if stats.pending_group_requests|default(0) > 0 %}
+                                            <span class="badge bg-warning ms-2">{{ stats.pending_group_requests }}</span>
+                                        {% endif %}
+                                    </a>
+                                </nav>
+                            </div>
+                            
+                            <a class="nav-link" href="{{ path('app_reclamation_index') }}">
+                                <div class="sb-nav-link-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                                Reclamations
                             </a>
-                            <div class="sb-sidenav-menu-heading">Analytics</div>
-                            <a class="nav-link" href="#">
-                                <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
-                                Impact Metrics
-                            </a>
-                            <a class="nav-link" href="#">
-                                <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
-                                Reports
+                            
+                            <a class="nav-link" href="{{ path('app_avis_index') }}">
+                                <div class="sb-nav-link-icon"><i class="fas fa-star"></i></div>
+                                Reviews
                             </a>
                         </div>
                     </div>
                     <div class="sb-sidenav-footer">
                         <div class="small">Logged in as:</div>
-                        BacktoGreen Admin
+                        {{ app.user ? app.user.email : 'Admin' }}
                     </div>
                 </nav>
             </div>
