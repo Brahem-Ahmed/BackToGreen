@@ -37,22 +37,22 @@
                 <div class="row g-3">
                     <div class="col-md-3">
                         <label for="titre" class="form-label translate" data-fr="Titre">Titre</label>
-                        <input type="text" class="form-control" id="titre" name="titre" value="{{ filters.titre }}" placeholder="Rechercher...">
+                        <input type="text" class="form-control" id="titre" name="titre" value="{{ filters.titre|default('') }}" placeholder="Rechercher...">
                     </div>
                     <div class="col-md-3">
                         <label for="lieu" class="form-label translate" data-fr="Lieu">Lieu</label>
-                        <input type="text" class="form-control" id="lieu" name="lieu" value="{{ filters.lieu }}" placeholder="Ville, région...">
+                        <input type="text" class="form-control" id="lieu" name="lieu" value="{{ filters.lieu|default('') }}" placeholder="Ville, région...">
                     </div>
                     <div class="col-md-3">
                         <label for="categorie" class="form-label translate" data-fr="Catégorie">Catégorie</label>
-                        <input type="text" class="form-control" id="categorie" name="categorie" value="{{ filters.categorie }}" placeholder="Reboisement...">
+                        <input type="text" class="form-control" id="categorie" name="categorie" value="{{ filters.categorie|default('') }}" placeholder="Reboisement...">
                     </div>
                     <div class="col-md-3">
                         <label for="disponible" class="form-label translate" data-fr="Disponibilité">Disponibilité</label>
                         <select class="form-select" id="disponible" name="disponible">
                             <option value="" class="translate" data-fr="Tous">Tous</option>
-                            <option value="oui" {{ filters.disponible == 'oui' ? 'selected' : '' }} class="translate" data-fr="Disponibles uniquement">Disponibles uniquement</option>
-                            <option value="non" {{ filters.disponible == 'non' ? 'selected' : '' }} class="translate" data-fr="Complets uniquement">Complets uniquement</option>
+                            <option value="oui" {{ (filters.disponible|default('')) == 'oui' ? 'selected' : '' }} class="translate" data-fr="Disponibles uniquement">Disponibles uniquement</option>
+                            <option value="non" {{ (filters.disponible|default('')) == 'non' ? 'selected' : '' }} class="translate" data-fr="Complets uniquement">Complets uniquement</option>
                         </select>
                     </div>
                 </div>
@@ -90,8 +90,12 @@
     {% endfor %}
 
     <div class="row g-4">
-        {% for item in events %}
-            {% set event = item.event %}
+        {% for event in evenements|default([]) %}
+            {% set participantsCount = event.participations|length %}
+            {% set availableSpots = event.capaciteMax - participantsCount %}
+            {% set isAvailable = availableSpots > 0 %}
+            {% set isPast = event.dateFin < date() %}
+            
             <div class="col-md-6 col-lg-4">
                 <div class="card h-100 shadow-sm hover-shadow" data-event-id="{{ event.id }}">
                     <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #2b7a0b 0%, #3d9a4e 100%);">
@@ -139,19 +143,19 @@
                                 <strong class="translate" data-fr="Places">Places:</strong>
                             </div>
                             <div>
-                                {% if item.isAvailable %}
-                                    <span class="badge bg-success">{{ item.availableSpots }} <span class="translate" data-fr="disponible(s)">disponible(s)</span></span>
+                                {% if isAvailable %}
+                                    <span class="badge bg-success">{{ availableSpots }} <span class="translate" data-fr="disponible(s)">disponible(s)</span></span>
                                 {% else %}
                                     <span class="badge bg-danger translate" data-fr="Complet">Complet</span>
                                 {% endif %}
                             </div>
                         </div>
 
-                        {% if item.isPast %}
+                        {% if isPast %}
                             <div class="alert alert-secondary mb-0" role="alert">
                                 <i class="fas fa-history me-2"></i><span class="translate" data-fr="Événement terminé">Événement terminé</span>
                             </div>
-                        {% elseif not item.isAvailable %}
+                        {% elseif not isAvailable %}
                             <div class="alert alert-danger mb-0" role="alert">
                                 <i class="fas fa-times-circle me-2"></i><span class="translate" data-fr="Aucune place disponible">Aucune place disponible</span>
                             </div>

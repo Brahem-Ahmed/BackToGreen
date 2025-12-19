@@ -117,10 +117,17 @@ class EvenementEcologique
     #[ORM\OneToMany(targetEntity: Avis::class, mappedBy: 'idEvenement', cascade: ['remove'])]
     private Collection $avis;
 
+    /**
+     * @var Collection<int, Groupe>
+     */
+    #[ORM\OneToMany(targetEntity: Groupe::class, mappedBy: 'evenement')]
+    private Collection $groupes;
+
     public function __construct()
     {
         $this->participations = new ArrayCollection();
         $this->avis = new ArrayCollection();
+        $this->groupes = new ArrayCollection();
         $this->categorie = [];
     }
 
@@ -395,5 +402,34 @@ class EvenementEcologique
     public function __toString(): string
     {
         return $this->titre ?? 'Nouvel événement';
+    }
+
+    /**
+     * @return Collection<int, Groupe>
+     */
+    public function getGroupes(): Collection
+    {
+        return $this->groupes;
+    }
+
+    public function addGroupe(Groupe $groupe): static
+    {
+        if (!$this->groupes->contains($groupe)) {
+            $this->groupes->add($groupe);
+            $groupe->setEvenement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGroupe(Groupe $groupe): static
+    {
+        if ($this->groupes->removeElement($groupe)) {
+            if ($groupe->getEvenement() === $this) {
+                $groupe->setEvenement(null);
+            }
+        }
+
+        return $this;
     }
 }

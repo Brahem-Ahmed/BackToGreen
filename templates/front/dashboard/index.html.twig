@@ -1,0 +1,377 @@
+{% extends 'frontoffice/layout.html.twig' %}
+
+{% block title %}My Dashboard - BackToGreen{% endblock %}
+
+{% block body %}
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="text-primary mb-1">Welcome back, {{ app.user.prenom }}!</h1>
+            <p class="text-muted">Here's what's happening with your environmental impact</p>
+        </div>
+        <a href="{{ path('app_profile_edit') }}" class="btn btn-outline-primary">
+            <i class="fas fa-user-edit me-2"></i>Edit Profile
+        </a>
+    </div>
+
+    <!-- Flash Messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-muted small mb-1">Event Participations</div>
+                            <div class="h2 mb-0 text-primary">{{ stats.total_participations }}</div>
+                        </div>
+                        <div class="text-primary" style="font-size: 2.5rem; opacity: 0.3;">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 pt-0">
+                    <a href="{{ path('app_front_events') }}" class="small text-primary text-decoration-none">
+                        Browse more events <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-muted small mb-1">Groups Joined</div>
+                            <div class="h2 mb-0 text-success">{{ stats.total_groups }}</div>
+                        </div>
+                        <div class="text-success" style="font-size: 2.5rem; opacity: 0.3;">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 pt-0">
+                    <span class="small text-muted">Community members</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-muted small mb-1">Waste Collections</div>
+                            <div class="h2 mb-0 text-info">{{ stats.total_collections }}</div>
+                        </div>
+                        <div class="text-info" style="font-size: 2.5rem; opacity: 0.3;">
+                            <i class="fas fa-recycle"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 pt-0">
+                    <span class="small text-muted">Making a difference</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-muted small mb-1">Event Reviews</div>
+                            <div class="h2 mb-0 text-warning">{{ stats.total_reviews }}</div>
+                        </div>
+                        <div class="text-warning" style="font-size: 2.5rem; opacity: 0.3;">
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 pt-0">
+                    <span class="small text-muted">Feedback shared</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Upcoming Events -->
+        <div class="col-lg-8 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-calendar-alt text-primary me-2"></i>My Upcoming Events
+                        </h5>
+                        <a href="{{ path('app_front_events') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if participations|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Event</th>
+                                        <th>Date</th>
+                                        <th>Location</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for participation in participations|slice(0, 5) %}
+                                        {% set event = participation.idEvenement %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ event.titre }}</strong>
+                                                <br>
+                                                <small class="text-muted">
+                                                    {% for cat in event.categorie %}
+                                                        <span class="badge bg-light text-dark">{{ cat }}</span>
+                                                    {% endfor %}
+                                                </small>
+                                            </td>
+                                            <td class="small">
+                                                <i class="far fa-calendar me-1"></i>
+                                                {{ event.dateDebut|date('M d, Y') }}
+                                                <br>
+                                                <i class="far fa-clock me-1"></i>
+                                                {{ event.dateDebut|date('H:i') }}
+                                            </td>
+                                            <td class="small">
+                                                <i class="fas fa-map-marker-alt me-1"></i>
+                                                {{ event.lieu }}
+                                            </td>
+                                            <td>
+                                                {% if participation.statut.value == 'INSCRIT' %}
+                                                    <span class="badge bg-info">Registered</span>
+                                                {% elseif participation.statut.value == 'CONFIRME' %}
+                                                    <span class="badge bg-success">Confirmed</span>
+                                                {% elseif participation.statut.value == 'ANNULE' %}
+                                                    <span class="badge bg-danger">Cancelled</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ participation.statut.value }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{{ path('app_front_events_show', {id: event.id}) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+                            <h5 class="text-muted">No upcoming events</h5>
+                            <p class="text-muted">Start by registering for your first event!</p>
+                            <a href="{{ path('app_front_events') }}" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i>Browse Events
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions & Recent Activity -->
+        <div class="col-lg-4 mb-4">
+            <!-- Quick Actions -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt text-warning me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('app_front_events') }}" class="btn btn-primary">
+                            <i class="fas fa-calendar-plus me-2"></i>Join Event
+                        </a>
+                        <a href="{{ path('app_reclamation_new') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-exclamation-circle me-2"></i>Submit Complaint
+                        </a>
+                        <a href="{{ path('app_collecte_dechet_new') }}" class="btn btn-outline-success">
+                            <i class="fas fa-recycle me-2"></i>Schedule Collection
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Reclamations -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comments text-info me-2"></i>My Complaints
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if reclamations|length > 0 %}
+                        {% for reclamation in reclamations|slice(0, 3) %}
+                            <div class="mb-3 pb-3 {% if not loop.last %}border-bottom{% endif %}">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <strong class="small">{{ reclamation.titre }}</strong>
+                                    {% if reclamation.statut.value == 'OUVERTE' %}
+                                        <span class="badge bg-warning text-dark">Open</span>
+                                    {% elseif reclamation.statut.value == 'EN_COURS' %}
+                                        <span class="badge bg-info">In Progress</span>
+                                    {% elseif reclamation.statut.value == 'RESOLUE' %}
+                                        <span class="badge bg-success">Resolved</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Closed</span>
+                                    {% endif %}
+                                </div>
+                                <p class="small text-muted mb-1">{{ reclamation.description|slice(0, 60) }}...</p>
+                                <small class="text-muted">
+                                    <i class="far fa-clock me-1"></i>{{ reclamation.dateReclamation|date('M d, Y') }}
+                                </small>
+                            </div>
+                        {% endfor %}
+                        <a href="{{ path('app_reclamation_index') }}" class="btn btn-sm btn-outline-primary w-100">
+                            View All Complaints
+                        </a>
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-check-circle fa-3x text-success mb-2"></i>
+                            <p class="text-muted small mb-0">No complaints submitted</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Groups and Collections Row -->
+    <div class="row">
+        <!-- My Groups -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-users text-success me-2"></i>My Groups
+                        </h5>
+                        <a href="{{ path('app_groupe_index') }}" class="btn btn-sm btn-outline-success">View All</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if groupes|length > 0 %}
+                        <div class="row">
+                            {% for groupe in groupes|slice(0, 4) %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card border">
+                                        <div class="card-body p-3">
+                                            <h6 class="card-title mb-2">{{ groupe.nom }}</h6>
+                                            <p class="card-text small text-muted mb-2">{{ groupe.description|slice(0, 50) }}...</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-users me-1"></i>{{ groupe.nombreMembres }} members
+                                                </small>
+                                                <small class="text-muted">
+                                                    {{ groupe.dateCreation|date('M Y') }}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-users fa-4x text-muted mb-3"></i>
+                            <h6 class="text-muted">No groups yet</h6>
+                            <p class="text-muted small">Create or join a group to collaborate on events</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Collections -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-recycle text-info me-2"></i>Recent Collections
+                        </h5>
+                        <a href="{{ path('app_collecte_dechet_index') }}" class="btn btn-sm btn-outline-info">View All</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if collections|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Quantity</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for collection in collections %}
+                                        <tr>
+                                            <td>
+                                                {% if collection.typeDechet.value == 'PLASTIQUE' %}
+                                                    <i class="fas fa-wine-bottle text-primary"></i> Plastic
+                                                {% elseif collection.typeDechet.value == 'VERRE' %}
+                                                    <i class="fas fa-glass-martini text-success"></i> Glass
+                                                {% elseif collection.typeDechet.value == 'PAPIER' %}
+                                                    <i class="fas fa-newspaper text-warning"></i> Paper
+                                                {% elseif collection.typeDechet.value == 'METAL' %}
+                                                    <i class="fas fa-cog text-secondary"></i> Metal
+                                                {% else %}
+                                                    <i class="fas fa-leaf text-success"></i> Organic
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ collection.quantite }} kg</td>
+                                            <td class="small">{{ collection.dateCollecte|date('M d') }}</td>
+                                            <td>
+                                                {% if collection.statut.value == 'PLANIFIEE' %}
+                                                    <span class="badge bg-info text-dark">Planned</span>
+                                                {% elseif collection.statut.value == 'EN_COURS' %}
+                                                    <span class="badge bg-warning text-dark">In Progress</span>
+                                                {% elseif collection.statut.value == 'TERMINEE' %}
+                                                    <span class="badge bg-success">Completed</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">Cancelled</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-recycle fa-4x text-muted mb-3"></i>
+                            <h6 class="text-muted">No collections scheduled</h6>
+                            <p class="text-muted small">Schedule your first waste collection</p>
+                            <a href="{{ path('app_collecte_dechet_new') }}" class="btn btn-sm btn-info">
+                                <i class="fas fa-plus me-1"></i>Schedule Collection
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -321,7 +321,7 @@
                         <p class="card-text"><i class="fas fa-calendar me-2"></i>October 15, 2023 | 9:00 AM</p>
                         <p class="card-text"><i class="fas fa-map-marker-alt me-2"></i>Santa Monica Beach, CA</p>
                         <p class="card-text">Join us for a community beach cleanup. All equipment will be provided.</p>
-                        <a href="#" class="btn btn-primary btn-sm">Register Now</a>
+                        <a href="{{ path('app_front_events') }}" class="btn btn-primary btn-sm">View Events</a>
                     </div>
                 </div>
             </div>
@@ -332,7 +332,7 @@
                         <p class="card-text"><i class="fas fa-calendar me-2"></i>October 22, 2023 | 10:00 AM</p>
                         <p class="card-text"><i class="fas fa-map-marker-alt me-2"></i>Central Park, New York</p>
                         <p class="card-text">Help us plant 500 trees in Central Park. No experience necessary.</p>
-                        <a href="#" class="btn btn-primary btn-sm">Register Now</a>
+                        <a href="{{ path('app_front_events') }}" class="btn btn-primary btn-sm">View Events</a>
                     </div>
                 </div>
             </div>
@@ -343,7 +343,7 @@
                         <p class="card-text"><i class="fas fa-calendar me-2"></i>November 5, 2023 | 2:00 PM</p>
                         <p class="card-text"><i class="fas fa-map-marker-alt me-2"></i>Online Event</p>
                         <p class="card-text">Learn about sustainable practices and how to start your own campaign.</p>
-                        <a href="#" class="btn btn-primary btn-sm">Register Now</a>
+                        <a href="{{ path('app_front_events') }}" class="btn btn-primary btn-sm">View Events</a>
                     </div>
                 </div>
             </div>
@@ -354,7 +354,7 @@
                         <p class="card-text"><i class="fas fa-calendar me-2"></i>November 12, 2023 | 11:00 AM</p>
                         <p class="card-text"><i class="fas fa-map-marker-alt me-2"></i>123 Green Street, Chicago</p>
                         <p class="card-text">Celebrate the opening of our newest community garden project.</p>
-                        <a href="#" class="btn btn-primary btn-sm">Register Now</a>
+                        <a href="{{ path('app_front_events') }}" class="btn btn-primary btn-sm">View Events</a>
                     </div>
                 </div>
             </div>
@@ -366,8 +366,8 @@
         <div class="container px-4 px-lg-5 text-center">
             <h2 class="mb-4">Ready to make a difference?</h2>
             <p class="mb-4">Join thousands of environmental activists and start creating change today.</p>
-            <a class="btn btn-light btn-lg" href="#">Get Started</a>
-            <a class="btn btn-outline-light btn-lg ms-2" href="#">Learn More</a>
+            <a class="btn btn-light btn-lg" href="{{ path('app_register') }}">Get Started</a>
+            <a class="btn btn-outline-light btn-lg ms-2" href="{{ path('app_front_events') }}">Browse Events</a>
         </div>
     </div>
     {% endblock body %}
@@ -418,7 +418,6 @@
     
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-    {{ encore_entry_script_tags('app') }}
     <!-- Custom JavaScript -->
     <script>
         // Counter animation for statistics

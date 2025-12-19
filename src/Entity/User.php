@@ -8,11 +8,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-
-#[ORM\Entity(repositoryClass: UserRepository::class)]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
@@ -59,7 +54,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(max: 255, maxMessage: 'Email address cannot be longer than {{ limit }} characters.')]
     private ?string $email = null;
 
-    #[ORM\Column(name: 'mot_de_passe', length: 255)]
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Password is required.')]
     #[Assert\Length(
@@ -114,11 +108,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Avis::class, mappedBy: 'idUser')]
     private Collection $avis;
 
+    /**
+     * @var Collection<int, MembreGroupe>
+     */
+    #[ORM\OneToMany(targetEntity: MembreGroupe::class, mappedBy: 'idUser')]
+    private Collection $membreGroupes;
+
+    /**
+     * @var Collection<int, Groupe>
+     */
+    #[ORM\OneToMany(targetEntity: Groupe::class, mappedBy: 'idCreateur')]
+    private Collection $groupes;
+
     public function __construct()
     {
         $this->collecteDechets = new ArrayCollection();
         $this->reclamations = new ArrayCollection();
         $this->avis = new ArrayCollection();
+        $this->membreGroupes = new ArrayCollection();
+        $this->groupes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -313,13 +321,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->role) {
             $roles[] = $this->role->value;
         }
-
-        // Map RoleUser enum to Symfony roles
-        $roles = ['ROLE_USER'];
-        
-        if ($this->role === RoleUser::ADMIN) {
-            $roles[] = 'ROLE_ADMIN';
-        }
         
         return array_unique($roles);
     }
@@ -334,9 +335,69 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getPassword(): string
     {
         return $this->motDePasse ?? '';
-        return $this->motDePasse;
+    }
+
     public function __toString(): string
     {
         return trim(sprintf('%s %s', $this->prenom ?? '', $this->nom ?? '')) ?: (string) $this->id;
     }
+
+    /**
+     * @return Collection<int, MembreGroupe>
+     */
+    public function getMembreGroupes(): Collection
+    {
+        return $this->membreGroupes;
+    }
+
+    public function addMembreGroupe(MembreGroupe $membreGroupe): static
+    {
+        if (!$this->membreGroupes->contains($membreGroupe)) {
+            $this->membreGroupes->add($membreGroupe);
+            $membreGroupe->setIdUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMembreGroupe(MembreGroupe $membreGroupe): static
+    {
+        if ($this->membreGroupes->removeElement($membreGroupe)) {
+            if ($membreGroupe->getIdUser() === $this) {
+                $membreGroupe->setIdUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Groupe>
+     */
+    public function getGroupes(): Collection
+    {
+        return $this->groupes;
+    }
+
+    public function addGroupe(Groupe $groupe): static
+    {
+        if (!$this->groupes->contains($groupe)) {
+            $this->groupes->add($groupe);
+            $groupe->setIdCreateur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGroupe(Groupe $groupe): static
+    {
+        if ($this->groupes->removeElement($groupe)) {
+            if ($groupe->getIdCreateur() === $this) {
+                $groupe->setIdCreateur(null);
+            }
+        }
+
+        return $this;
+    }
 }
+

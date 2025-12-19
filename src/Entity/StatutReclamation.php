@@ -4,6 +4,7 @@ namespace App\Entity;
 
 enum StatutReclamation: string
 {
+    case EN_ATTENTE = 'EN_ATTENTE';
     case NOUVELLE = 'NOUVELLE';
     case EN_COURS = 'EN_COURS';
     case RESOLUT = 'RESOLUT';
@@ -16,11 +17,12 @@ enum StatutReclamation: string
     public function label(): string
     {
         return match($this) {
-            self::NOUVELLE => 'NOUVELLE',
-            self::EN_COURS => 'EN_COURS',
-            self::RESOLUT => 'RESOLUT',
-            self::FERMEE => 'FERMEE',
-            self::REJECTEE => 'REJECTEE',
+            self::EN_ATTENTE => 'En attente',
+            self::NOUVELLE => 'Nouvelle',
+            self::EN_COURS => 'En cours',
+            self::RESOLUT => 'Résolue',
+            self::FERMEE => 'Fermée',
+            self::REJECTEE => 'Rejetée',
         };
     }
 
